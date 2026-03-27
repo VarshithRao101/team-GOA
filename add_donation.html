@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Food Donation - Food Share</title>
+    <meta name="description" content="Post a new food donation">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+    <div class="background-decor">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="login-wrapper signup-wrapper" style="max-width: 680px;">
+        <main class="login-card">
+            <div style="display: flex; justify-content: flex-start; margin-bottom: 1rem;">
+                <a href="dashboard.html" class="back-btn" style="margin-bottom: 0; padding-top: 0; padding-left: 0;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    Back to Dashboard
+                </a>
+            </div>
+            <div class="brand">
+                <div class="logo-icon">🍲</div>
+                <h1>Post a Donation</h1>
+                <p>Share your surplus food with the community</p>
+            </div>
+
+            <form id="donationForm">
+                <div class="input-group">
+                    <label for="foodType">Food Type</label>
+                    <input type="text" id="foodType" name="foodType" placeholder="e.g., Cooked Rice, Mixed Vegetables" required>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="quantity">Available Amount</label>
+                        <input type="text" id="quantity" name="quantity" placeholder="e.g., 5 kg, 2 liters" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="servings">Estimated Servings</label>
+                        <input type="number" id="servings" name="servings" placeholder="e.g., 15" required>
+                        <div id="quantity-warning" style="color: #b45309; font-size: 0.85rem; margin-top: 0.5rem; display: none; background: #fffbeb; padding: 0.6rem; border-radius: 8px; border: 1px solid #fde68a;"></div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location" placeholder="e.g., Downtown Area" required>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="timePrepared">Time Prepared</label>
+                        <input type="datetime-local" id="timePrepared" name="timePrepared" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="expiryTime">Estimated Expiry Time</label>
+                        <input type="datetime-local" id="expiryTime" name="expiryTime" required>
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="foodImage">Food Image <span style="color: #ef4444;">*</span></label>
+                        <input type="file" id="foodImage" name="foodImage" accept="image/*">
+                        <div id="image-error" style="color: #dc2626; font-size: 0.85rem; margin-top: 0.6rem; display: none; font-weight: 500;">Please upload a photo of the food.</div>
+                    </div>
+                    <div class="input-group">
+                        <label for="temperature">Storage Temp (Optional)</label>
+                        <select id="temperature" name="temperature">
+                            <option value="">Select temperature</option>
+                            <option value="Room Temp">Room Temp</option>
+                            <option value="Refrigerated">Refrigerated</option>
+                            <option value="Frozen">Frozen</option>
+                            <option value="Hot">Hot</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="notes">Additional Notes</label>
+                    <textarea id="notes" name="notes" rows="3" placeholder="Any specific details, dietary info, or pickup instructions?"></textarea>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="login-btn">Post Donation</button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script>
+        const foodTypeInput = document.getElementById('foodType');
+        const quantityInput = document.getElementById('quantity');
+        const servingsInput = document.getElementById('servings');
+        const quantityWarning = document.getElementById('quantity-warning');
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const editIndex = urlParams.get('editIndex');
+        const existingDonations = JSON.parse(localStorage.getItem('foodDonations')) || [];
+
+        if (editIndex !== null && existingDonations[editIndex]) {
+            const item = existingDonations[editIndex];
+            foodTypeInput.value = item.foodType || '';
+            quantityInput.value = item.quantity || '';
+            servingsInput.value = item.servings || '';
+            document.getElementById('temperature').value = item.temperature || '';
+            document.getElementById('location').value = item.location || '';
+            document.getElementById('timePrepared').value = item.timePrepared || '';
+            document.getElementById('expiryTime').value = item.expiryTime || '';
+            document.getElementById('notes').value = item.notes || '';
+            
+            document.querySelector('.brand h1').textContent = 'Update Donation';
+            document.querySelector('.login-btn').textContent = 'Save Changes';
+        }
+
+        // AI Mock serving estimation
+        function validateServings() {
+            const foodType = foodTypeInput.value.trim().toLowerCase();
+            const quantityVal = quantityInput.value.trim().toLowerCase();
+            const servingsVal = parseInt(servingsInput.value, 10);
+
+            if (!foodType || !quantityVal || isNaN(servingsVal)) {
+                quantityWarning.style.display = 'none';
+                return;
+            }
+
+            const qMatch = quantityVal.match(/(\d+(?:\.\d+)?)/);
+            if (!qMatch) return;
+            const quantityNum = parseFloat(qMatch[1]);
+            const isKg = quantityVal.includes('kg') || quantityVal.includes('kilo');
+            const isLiters = quantityVal.includes('l') || quantityVal.includes('liter');
+
+            let estMin = 0;
+            let estMax = 0;
+
+            if (isKg) {
+                if (foodType.includes('rice')) {
+                    estMin = Math.round(quantityNum * 3);
+                    estMax = Math.round(quantityNum * 4);
+                } else if (foodType.includes('meat') || foodType.includes('chicken')) {
+                    estMin = Math.round(quantityNum * 4);
+                    estMax = Math.round(quantityNum * 5);
+                } else {
+                    estMin = Math.round(quantityNum * 3);
+                    estMax = Math.round(quantityNum * 4);
+                }
+            } else if (isLiters) {
+                estMin = Math.round(quantityNum * 3);
+                estMax = Math.round(quantityNum * 4);
+            }
+
+            if (estMin > 0 && estMax > 0) {
+                if (servingsVal < Math.max(1, estMin - 2) || servingsVal > estMax + 6) {
+                    quantityWarning.innerHTML = `<span style="margin-right:0.25rem;">✨</span> <strong>AI Suggestion:</strong> The entered servings may not match the quantity. Estimated serving capacity for ${quantityVal} ${foodType} is around ${estMin} to ${estMax} servings. Please recheck the value.`;
+                    quantityWarning.style.display = 'block';
+                } else {
+                    quantityWarning.style.display = 'none';
+                }
+            } else {
+                 if (servingsVal >= 100) {
+                     quantityWarning.innerHTML = `<span style="margin-right:0.25rem;">✨</span> <strong>AI Suggestion:</strong> This volume is exceptionally high. Please verify the serving count.`;
+                     quantityWarning.style.display = 'block';
+                 } else {
+                     quantityWarning.style.display = 'none';
+                 }
+            }
+        }
+
+        foodTypeInput.addEventListener('input', validateServings);
+        quantityInput.addEventListener('input', validateServings);
+        servingsInput.addEventListener('input', validateServings);
+
+        document.getElementById('donationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const foodImage = document.getElementById('foodImage');
+            const imageError = document.getElementById('image-error');
+            
+            if (editIndex === null && (!foodImage.files || foodImage.files.length === 0)) {
+                imageError.style.display = 'block';
+                return; // Stop form submission
+            } else {
+                imageError.style.display = 'none';
+            }
+            
+            // Backend logic removed for standalone frontend
+            if (editIndex !== null && existingDonations[editIndex]) {
+                existingDonations[editIndex] = {
+                    ...existingDonations[editIndex],
+                    foodType: document.getElementById('foodType').value,
+                    quantity: document.getElementById('quantity').value,
+                    servings: document.getElementById('servings').value,
+                    temperature: document.getElementById('temperature').value,
+                    location: document.getElementById('location').value,
+                    timePrepared: document.getElementById('timePrepared').value,
+                    expiryTime: document.getElementById('expiryTime').value,
+                    notes: document.getElementById('notes').value
+                };
+            } else {
+                const newDonation = {
+                    id: Date.now(),
+                    foodType: document.getElementById('foodType').value,
+                    quantity: document.getElementById('quantity').value,
+                    servings: document.getElementById('servings').value,
+                    temperature: document.getElementById('temperature').value,
+                    location: document.getElementById('location').value,
+                    timePrepared: document.getElementById('timePrepared').value,
+                    expiryTime: document.getElementById('expiryTime').value,
+                    notes: document.getElementById('notes').value,
+                    createdAt: new Date().toISOString()
+                };
+                existingDonations.push(newDonation);
+            }
+            
+            localStorage.setItem('foodDonations', JSON.stringify(existingDonations));
+
+            window.location.href = 'dashboard.html';
+        });
+    </script>
+</body>
+</html>

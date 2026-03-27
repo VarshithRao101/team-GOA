@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Login - Food Share</title>
+    <meta name="description" content="Login to your donor account to share food.">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-decor">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="login-wrapper">
+        <a href="#" class="back-btn" id="back-btn" aria-label="Go Back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+            Back
+        </a>
+        
+        <main class="login-card">
+            <div class="brand">
+                <div class="logo-icon">🌿</div>
+                <h1>Welcome Back, Donor</h1>
+                <p>Log in to continue sharing meals and hope.</p>
+            </div>
+            
+            <form id="login-form" onsubmit="event.preventDefault(); window.location.href='dashboard.html';">
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="hello@example.com" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+                
+                <div class="actions">
+                    <button type="submit" class="login-btn" id="login-btn">Log In</button>
+                </div>
+            </form>
+            
+            <div class="card-footer">
+                <p>New to food sharing? <a href="signup.html">Create an account</a></p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

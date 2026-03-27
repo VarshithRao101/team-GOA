@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Dashboard - Food Share</title>
+    <meta name="description" content="Manage your food donations, profile, and posts.">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-page">
+    <div class="background-decor">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="dashboard-wrapper">
+        <main class="dashboard-card">
+            <header class="dashboard-header text-center">
+                <div class="header-branding">
+                    <span class="logo-icon-sm">🌿</span>
+                    <span class="brand-text">Food Share</span>
+                </div>
+                <div class="header-welcome">
+                    <p class="greeting-subtext">Welcome back, Donor</p>
+                    <h1>Ready to share some food today?</h1>
+                </div>
+            </header>
+            
+            <div class="dashboard-grid">
+                <a href="add_donation.html" class="dashboard-option primary-action">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                    <span>Share Food Donation</span>
+                </a>
+                
+                <a href="manage_listings.html" class="dashboard-option secondary-action">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                    <span>Manage My Listings</span>
+                </a>
+                
+                <a href="profile.html" class="dashboard-option secondary-action">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span>Account Profile</span>
+                </a>
+                
+                <a href="index.html" class="dashboard-option secondary-action logout-action">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span>Sign Out</span>
+                </a>
+            </div>
+
+            <div id="donations-section" style="margin-top: 3.5rem; display: none;">
+                <div class="donations-header">
+                    <h2>My Active Listings</h2>
+                    <span class="donation-count-badge" id="donation-count">0 Posts</span>
+                </div>
+                <div id="donations-container" class="donations-grid">
+                    <!-- Cards will be dynamically injected here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const section = document.getElementById('donations-section');
+            const container = document.getElementById('donations-container');
+            const countBadge = document.getElementById('donation-count');
+
+            window.deleteDonation = async function(idx) {
+                if (confirm('Are you sure you want to delete this donation?')) {
+                    const currentDonations = JSON.parse(localStorage.getItem('foodDonations')) || [];
+                    
+                    currentDonations.splice(idx, 1);
+                    localStorage.setItem('foodDonations', JSON.stringify(currentDonations));
+                    renderDonations();
+                }
+            };
+
+            const formatTime = (isoString) => {
+                if (!isoString) return 'N/A';
+                return new Date(isoString).toLocaleString(undefined, {
+                    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+            };
+
+            // Format remaining time into readable parts or "Expired"
+            const formatCountdown = (msLeft) => {
+                if (msLeft <= 0) return null; // signal expired
+                const totalSec = Math.floor(msLeft / 1000);
+                const d = Math.floor(totalSec / 86400);
+                const h = Math.floor((totalSec % 86400) / 3600);
+                const m = Math.floor((totalSec % 3600) / 60);
+                const s = totalSec % 60;
+                const parts = [];
+                
+                if (d > 0) {
+                    parts.push(`${d} day${d > 1 ? 's' : ''}`);
+                }
+                if (h > 0 || d > 0) {
+                    parts.push(`${h}h`);
+                }
+                if (m > 0 || h > 0 || d > 0) {
+                    parts.push(`${m}m`);
+                }
+                if (d === 0) {
+                    parts.push(`${s}s`);
+                }
+                
+                return parts.join(' ');
+            };
+
+            const renderDonations = async () => {
+                let donations = JSON.parse(localStorage.getItem('foodDonations')) || [];
+                
+                section.style.display = 'block';
+                container.innerHTML = '';
+                countBadge.textContent = `${donations.length} Post${donations.length === 1 ? '' : 's'}`;
+
+                if (donations.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state" style="text-align: center; padding: 4rem 1rem; background: var(--card-bg); border-radius: 20px; border: 2px dashed rgba(43, 122, 75, 0.2); grid-column: 1 / -1; margin-top: 1rem;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.8;">🍽️</div>
+                            <h3 style="font-size: 1.35rem; color: #1a241e; margin-bottom: 0.5rem; font-weight: 600;">No listings available</h3>
+                            <p style="color: var(--text-muted); font-size: 0.95rem;">You haven't posted any food donations yet. Create one to share!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Separate items so active donations display before expired ones
+                const activeItems = [];
+                const expiredItems = [];
+                const renderTime = new Date();
+
+                [...donations].reverse().forEach((donation, idx) => {
+                    const originalIdx = donations.length - 1 - idx;
+                    const expiry = donation.expiryTime ? new Date(donation.expiryTime) : null;
+                    if (expiry && renderTime >= expiry) {
+                        expiredItems.push({ donation, originalIdx });
+                    } else {
+                        activeItems.push({ donation, originalIdx });
+                    }
+                });
+
+                [...activeItems, ...expiredItems].forEach(({ donation, originalIdx }) => {
+                    const card = document.createElement('div');
+                    card.className = 'donation-item';
+                    card.dataset.cardId = originalIdx;
+
+                const expiry = donation.expiryTime ? new Date(donation.expiryTime) : null;
+                const now = new Date();
+                const initialExpired = expiry && now >= expiry;
+                const msInitialLeft = expiry ? expiry - now : 0;
+                const initialExpiringSoon = expiry && msInitialLeft > 0 && msInitialLeft < 3600000;
+
+                if (initialExpired) card.classList.add('donation-item--expired');
+
+                card.innerHTML = `
+                    <div class="donation-card-header">
+                        <div class="donation-status ${initialExpired ? 'donation-status--expired' : (initialExpiringSoon ? 'donation-status--expiring-soon' : '')}" data-status>
+                            <span class="status-dot ${initialExpired ? 'status-dot--expired' : (initialExpiringSoon ? 'status-dot--expiring-soon' : '')}" data-dot></span>
+                            <span data-status-text>${initialExpired ? 'Expired' : (initialExpiringSoon ? 'Expiring Soon' : 'Available')}</span>
+                        </div>
+                        <span class="donation-time-badge">${formatTime(donation.timePrepared)}</span>
+                    </div>
+                    <div class="donation-card-body">
+                        <h3 class="donation-title">${donation.foodType}</h3>
+                        <div class="donation-location" style="font-size: 0.9rem; color: var(--text-muted); margin-top: -0.5rem;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px; margin-bottom: 2px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${donation.location || 'N/A'}
+                        </div>
+                        <div class="donation-info-grid">
+                            <div class="info-card">
+                                <span class="info-label">Portion Info</span>
+                                <span class="info-value">${donation.quantity}${donation.servings ? `<span style="opacity: 0.7; font-size: 0.85em; font-weight: 400; margin-left: 0.3rem;">(${donation.servings} Servings)</span>` : ''}</span>
+                            </div>
+                            <div class="info-card">
+                                <span class="info-label">Use By</span>
+                                <span class="info-value text-urgent">${formatTime(donation.expiryTime)}</span>
+                            </div>
+                        </div>
+                        ${expiry ? `
+                        <div class="countdown-row" data-expiry="${expiry.toISOString()}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="countdown-icon" style="vertical-align: middle; margin-bottom: 1px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span class="countdown-label" data-countdown>${initialExpired ? 'Item has expired' : formatCountdown(expiry - now)}</span>
+                        </div>` : ''}
+                        
+                        ${!donation.claimed ? `
+                        <div class="donation-actions" style="display: flex; gap: 0.8rem; margin-top: 1.25rem; padding-top: 1rem;">
+                            <a href="add_donation.html?editIndex=${originalIdx}" class="btn-action edit-btn" style="flex: 1; padding: 0.6rem; text-align: center; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 0.95rem; background: #eefaf1; color: var(--primary-color); border: none; transition: all 0.2s; cursor: pointer;">Edit Details</a>
+                            <button onclick="deleteDonation(${originalIdx})" class="btn-action delete-btn" style="flex: 1; padding: 0.6rem; text-align: center; border-radius: 8px; font-weight: 600; font-size: 0.95rem; background: #fef2f2; color: #dc2626; border: none; transition: all 0.2s; cursor: pointer;">Remove</button>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            };
+
+            renderDonations();
+
+            // --- Live countdown tick (every second) ---
+            setInterval(() => {
+                document.querySelectorAll('[data-countdown]').forEach(el => {
+                    const row = el.closest('[data-expiry]');
+                    if (!row) return;
+                    const expiry = new Date(row.dataset.expiry);
+                    const msLeft = expiry - new Date();
+                    const card = row.closest('.donation-item');
+                    const statusEl = card.querySelector('[data-status]');
+                    const dotEl = card.querySelector('[data-dot]');
+                    const statusText = card.querySelector('[data-status-text]');
+
+                    if (msLeft <= 0) {
+                        // Switch to expired state
+                        el.textContent = 'Item has expired';
+                        if (!card.classList.contains('donation-item--expired')) {
+                            card.classList.add('donation-item--expired');
+                            statusEl.classList.remove('donation-status--expiring-soon');
+                            dotEl.classList.remove('status-dot--expiring-soon');
+                            statusEl.classList.add('donation-status--expired');
+                            dotEl.classList.add('status-dot--expired');
+                            statusText.textContent = 'Expired';
+                        }
+                    } else {
+                        el.textContent = formatCountdown(msLeft);
+                        if (msLeft > 0 && msLeft < 3600000) {
+                            if (!statusEl.classList.contains('donation-status--expiring-soon')) {
+                                statusEl.classList.add('donation-status--expiring-soon');
+                                dotEl.classList.add('status-dot--expiring-soon');
+                                statusText.textContent = 'Expiring Soon';
+                            }
+                        } else {
+                            if (statusEl.classList.contains('donation-status--expiring-soon')) {
+                                statusEl.classList.remove('donation-status--expiring-soon');
+                                dotEl.classList.remove('status-dot--expiring-soon');
+                                statusText.textContent = 'Available';
+                            }
+                        }
+                    }
+                });
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

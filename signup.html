@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donor Sign Up - Food Share</title>
+    <meta name="description" content="Create a food donor account to start sharing meals.">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-decor">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="login-wrapper signup-wrapper">
+        <main class="login-card">
+            <div class="brand">
+                <div class="logo-icon">🌱</div>
+                <h1>Join Food Share</h1>
+                <p>Register as a donor to start making an impact.</p>
+            </div>
+            
+            <form id="signup-form" onsubmit="event.preventDefault(); window.location.href='dashboard.html';">
+                <div class="input-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" placeholder="John Doe" required>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" placeholder="hello@example.com" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" placeholder="+1 (555) 000-0000" required>
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" placeholder="••••••••" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" placeholder="••••••••" required>
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <button type="submit" class="login-btn" id="signup-btn">Sign Up</button>
+                </div>
+            </form>
+            
+            <div class="card-footer">
+                <p>Already have an account? <a href="index.html">Log In here</a></p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
