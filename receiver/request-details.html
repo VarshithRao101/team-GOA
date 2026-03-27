@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request Details | Food Donation</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    .back-nav { margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end; }
+    .nav-left { display: flex; flex-direction: column; gap: 0.5rem; }
+    .back-link { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--primary-color); text-decoration: none; font-weight: 500; }
+    .back-link:hover { text-decoration: underline; }
+    .not-found-state { display: none; margin-top: 2rem; }
+    
+    .status-capsule {
+      font-size: 0.8rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 99px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    
+    /* Content Layout */
+    .detail-container { display: none; }
+  </style>
+</head>
+<body class="dashboard-body">
+
+  <div class="dashboard-wrapper request-detail-wrapper">
+    
+    <!-- Top Navigation Area -->
+    <nav class="back-nav">
+      <div class="nav-left">
+        <a href="requests.html" class="back-link">
+          <i class="ph ph-arrow-left"></i> Back to My Requests
+        </a>
+        <div>
+          <h1 style="font-size: 1.8rem; color: var(--text-main); margin-bottom: 0.25rem;">Request Details</h1>
+          <span style="color: var(--text-muted); font-family: monospace;">Ref: <span id="reqBadgeRef">...</span></span>
+        </div>
+      </div>
+      <div id="topStatusBadge" class="status-capsule" style="background:var(--bg-color); color:var(--primary-color);">
+        ...
+      </div>
+    </nav>
+
+    <!-- Invalid State -->
+    <div class="empty-state not-found-state" id="notFoundState" style="display: none;">
+      <i class="ph ph-warning-circle empty-icon" style="color: #ef4444;"></i>
+      <h3>Request Not Found</h3>
+      <p>We couldn't locate this pickup request in our mock system.</p>
+      <div style="display:flex; justify-content:center; gap:1rem; margin-top:1.5rem;">
+        <a href="requests.html" class="btn-outline" style="text-decoration:none;">Go Back</a>
+        <a href="donations.html" class="btn-primary" style="text-decoration:none;">Browse Donations</a>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="detail-container" id="detailContent">
+      
+      <!-- Status Hero -->
+      <div class="status-hero" id="statusHero">
+        <div class="status-hero-icon" id="heroIcon"><i class="ph ph-circle-notch"></i></div>
+        <h2 id="heroTitle">Current Status</h2>
+        <p id="heroMsg">Explanation message will appear here.</p>
+      </div>
+
+      <!-- Timeline Stepper -->
+      <div class="timeline-container" id="timelineBlock">
+        <div class="timeline">
+          <div class="timeline-progress" id="timelineBar" style="width: 0%;"></div>
+          
+          <div class="timeline-step" id="step1">
+            <div class="step-marker">1</div>
+            <div class="step-label">Submitted</div>
+          </div>
+          <div class="timeline-step" id="step2">
+            <div class="step-marker">2</div>
+            <div class="step-label">Approved</div>
+          </div>
+          <div class="timeline-step" id="step3">
+            <div class="step-marker">3</div>
+            <div class="step-label">Ready</div>
+          </div>
+          <div class="timeline-step" id="step4">
+            <div class="step-marker">4</div>
+            <div class="step-label">Completed</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Grids -->
+      <div class="detail-blocks">
+        
+        <!-- Block: Donation Summary -->
+        <div class="detail-card">
+          <h3><i class="ph ph-package"></i> Donation Summary</h3>
+          <div class="data-list">
+            <div class="data-row" style="margin-bottom:0.5rem;">
+              <div style="display:flex; gap:1rem; align-items:center;">
+                <img src="" id="dImage" style="width:60px; height:60px; border-radius:8px; object-fit:cover;">
+                <div>
+                  <div style="font-weight:600; color:var(--text-main);" id="dName">...</div>
+                  <div style="font-size:0.8rem; color:var(--text-muted);" id="dDonor">...</div>
+                </div>
+              </div>
+            </div>
+            <div class="data-row"><span class="lbl">Servings Available</span> <span class="val" id="dTotalSrv">...</span></div>
+            <div class="data-row"><span class="lbl">Distance</span> <span class="val" id="dDist">... km away</span></div>
+            <div class="data-row"><span class="lbl">Expiry Limit</span> <span class="val" id="dExp">...</span></div>
+            <div class="data-row" style="flex-direction:column; align-items:flex-start; gap:0.25rem;">
+              <span class="lbl">Donor Note:</span>
+              <span class="val" id="dNote" style="text-align:left; max-width:100%; font-size:0.85rem; color:var(--text-muted);">...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Block: Receiver Request Details -->
+        <div class="detail-card">
+          <h3><i class="ph ph-clipboard-text"></i> Your Request</h3>
+          <div class="data-list">
+            <div class="data-row"><span class="lbl">Organization</span> <span class="val" id="rOrg">...</span></div>
+            <div class="data-row"><span class="lbl">Contact Person</span> <span class="val" id="rPerson">...</span></div>
+            <div class="data-row"><span class="lbl">Requested Amount</span> <span class="val" id="rSrv" style="color:var(--primary-color);">...</span></div>
+            <div class="data-row"><span class="lbl">Submitted On</span> <span class="val" id="rSubmit">...</span></div>
+            <div class="data-row" style="flex-direction:column; align-items:flex-start; gap:0.25rem;">
+              <span class="lbl">Your Extra Notes:</span>
+              <span class="val" id="rNote" style="text-align:left; max-width:100%; font-size:0.85rem; color:var(--text-muted);">...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Block: Pickup Info -->
+        <div class="detail-card" style="grid-column: 1 / -1;">
+          <h3><i class="ph ph-map-pin"></i> Pickup Information</h3>
+          <div class="data-list" style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+            <div>
+              <div class="data-row" style="margin-bottom:0.75rem;"><span class="lbl">Pickup Location</span> <span class="val" id="pLoc">...</span></div>
+              <div class="data-row" style="margin-bottom:0.75rem;"><span class="lbl">Preferred Time</span> <span class="val" id="pPrefTime">...</span></div>
+              <div class="data-row"><span class="lbl">Pickup Contact</span> <span class="val" id="pContact">...</span></div>
+            </div>
+            
+            <div class="guidance-box" id="guidanceBox">
+              <strong>Status Guidance:</strong><br>
+              <span id="guidanceText">Information will update based on status.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Buttons Area -->
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;" id="actionArea">
+        <!-- Rendered by JS -->
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Cancel Confirmation Modal -->
+  <div class="modal-overlay" id="cancelModal">
+    <div class="modal-content">
+      <i class="ph ph-warning-circle modal-icon"></i>
+      <h3 class="modal-title">Cancel Request?</h3>
+      <p class="modal-text">Are you sure you want to cancel this request? The donor will be notified.</p>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="btnCancelModal">No, Keep It</button>
+        <button class="btn-danger" id="btnConfirmCancel">Yes, Cancel Request</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Expanded Mock Data
+    const defaultMockRequests = [
+      {
+        id: "REQ-1004",
+        donationId: 1,
+        foodName: "Fresh Baked Bread & Pastries",
+        image: "https://images.unsplash.com/photo-1599839619722-39751411ea63?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        requestedServings: 20,
+        availableServings: 20,
+        donorLocation: "Sunrise Bakery, 101 Bakery Lane",
+        distance: 1.2,
+        requestDate: new Date(Date.now() - 3600000).toISOString(),
+        expiryTime: new Date(Date.now() + 7200000).toISOString(),
+        pickupTime: "ASAP (Within 30m)",
+        pickupContact: "+1 555-019-2048",
+        receiverOrg: "Hope Foundation Shelters",
+        receiverContact: "Sarah Jenkins",
+        donorNote: "Assorted leftover breads and muffins from morning batch.",
+        receiverNote: "We will be arriving in a white van.",
+        status: "pending"
+      },
+      {
+        id: "REQ-1003",
+        donationId: 2,
+        foodName: "Mixed Veg & Rice Trays",
+        image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        requestedServings: 30,
+        availableServings: 30,
+        donorLocation: "TechCorp Cafeteria, Building 4",
+        distance: 3.5,
+        requestDate: new Date(Date.now() - 14400000).toISOString(),
+        expiryTime: new Date(Date.now() + 21600000).toISOString(),
+        pickupTime: "Within 1 Hour",
+        pickupContact: "+1 555-019-2048",
+        receiverOrg: "Hope Foundation Shelters",
+        receiverContact: "Sarah Jenkins",
+        donorNote: "Containers are completely sealed. Mildly spiced.",
+        receiverNote: "Please leave near the loading dock.",
+        status: "approved"
+      },
+      {
+        id: "REQ-1002",
+        donationId: null,
+        foodName: "Leftover Sandwiches",
+        image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        requestedServings: 15,
+        availableServings: 15,
+        donorLocation: "Downtown Deli",
+        distance: 0.8,
+        requestDate: new Date(Date.now() - 86400000).toISOString(),
+        expiryTime: new Date(Date.now() + 3600000).toISOString(),
+        pickupTime: "Custom Time: 2:00 PM",
+        pickupContact: "+1 555-019-2048",
+        receiverOrg: "Hope Foundation Shelters",
+        receiverContact: "Sarah Jenkins",
+        donorNote: "Wrapped sandwiches, mostly turkey and cheese.",
+        receiverNote: "-",
+        status: "ready"
+      },
+      {
+        id: "REQ-1001",
+        donationId: null,
+        foodName: "Assorted Produce Box",
+        image: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        requestedServings: 40,
+        availableServings: 40,
+        donorLocation: "Green Grocers",
+        distance: 5.1,
+        requestDate: new Date(Date.now() - 172800000).toISOString(),
+        expiryTime: new Date(Date.now() - 86400000).toISOString(),
+        pickupTime: "ASAP",
+        pickupContact: "+1 555-019-2048",
+        receiverOrg: "Hope Foundation Shelters",
+        receiverContact: "Sarah Jenkins",
+        donorNote: "Produce nearing rot, must be processed soon.",
+        receiverNote: "-",
+        status: "completed"
+      },
+      {
+        id: "REQ-1000",
+        donationId: null,
+        foodName: "Tomato Soup Batch",
+        image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        requestedServings: 25,
+        availableServings: 25,
+        donorLocation: "Corner Diner",
+        distance: 2.3,
+        requestDate: new Date(Date.now() - 259200000).toISOString(),
+        expiryTime: new Date(Date.now() - 180000000).toISOString(),
+        pickupTime: "Later Today",
+        pickupContact: "+1 555-019-2048",
+        receiverOrg: "Hope Foundation Shelters",
+        receiverContact: "Sarah Jenkins",
+        donorNote: "Need to bring your own large thermos container.",
+        receiverNote: "Cancelled because our vehicle broke down.",
+        status: "cancelled"
+      }
+    ];
+
+    let mockRequests = JSON.parse(localStorage.getItem('receiverMockRequests'));
+    if (!mockRequests) {
+      mockRequests = defaultMockRequests;
+      localStorage.setItem('receiverMockRequests', JSON.stringify(mockRequests));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const reqId = urlParams.get('id');
+      
+      const notFoundState = document.getElementById('notFoundState');
+      const detailContent = document.getElementById('detailContent');
+
+      // Find Mock
+      const req = mockRequests.find(r => r.id === reqId);
+
+      if (!req) {
+        notFoundState.style.display = 'block';
+        return;
+      }
+
+      detailContent.style.display = 'block';
+
+      // --- 1. Top Section ---
+      document.getElementById('reqBadgeRef').textContent = req.id;
+      const tsb = document.getElementById('topStatusBadge');
+      tsb.textContent = req.status.toUpperCase();
+      
+      // Hero Card Logic
+      const hero = document.getElementById('statusHero');
+      hero.className = `status-hero ${req.status}`;
+      
+      const heroConfig = {
+        pending: { icon: 'ph-hourglass-medium', title: 'Pending Approval', msg: 'Waiting for donor confirmation. You can still cancel this request.' },
+        approved: { icon: 'ph-thumbs-up', title: 'Request Approved', msg: 'The donor has approved your request. Please prepare for pickup coordination.' },
+        ready: { icon: 'ph-package', title: 'Ready for Pickup', msg: 'The food is packed and ready. Please arrive for pickup soon before expiry.' },
+        completed: { icon: 'ph-check-circle', title: 'Completed', msg: 'This request was successfully fulfilled. Thank you!' },
+        rejected: { icon: 'ph-x-circle', title: 'Request Rejected', msg: 'Unfortunately, this request was not approved by the donor.' },
+        cancelled: { icon: 'ph-prohibit', title: 'Cancelled', msg: 'This request has been cancelled and is no longer active.' }
+      };
+
+      const cfg = heroConfig[req.status];
+      document.getElementById('heroIcon').innerHTML = `<i class="ph ${cfg.icon}"></i>`;
+      document.getElementById('heroTitle').textContent = cfg.title;
+      document.getElementById('heroMsg').textContent = cfg.msg;
+
+      // Status Guidance
+      const guidanceBox = document.getElementById('guidanceBox');
+      document.getElementById('guidanceText').textContent = cfg.msg;
+      if (req.status === 'cancelled' || req.status === 'rejected') {
+        guidanceBox.style.borderLeftColor = '#ef4444';
+      } else if (req.status === 'completed' || req.status === 'ready') {
+        guidanceBox.style.borderLeftColor = '#16a34a';
+      }
+
+      // --- 2. Timeline Logic ---
+      const timelineBox = document.getElementById('timelineBlock');
+      const s1 = document.getElementById('step1');
+      const s2 = document.getElementById('step2');
+      const s3 = document.getElementById('step3');
+      const s4 = document.getElementById('step4');
+      const tBar = document.getElementById('timelineBar');
+      
+      if (req.status === 'rejected' || req.status === 'cancelled') {
+        tBar.style.width = '0%';
+        tBar.style.background = '#e2e8f0';
+        s1.className = 'timeline-step completed';
+        s2.className = `timeline-step ${req.status}`;
+        s2.querySelector('.step-marker').innerHTML = '<i class="ph ph-x"></i>';
+        s2.querySelector('.step-label').textContent = req.status.toUpperCase();
+        s3.style.display = 'none';
+        s4.style.display = 'none';
+      } else {
+        // Standard Flow
+        s1.className = 'timeline-step completed';
+        s1.querySelector('.step-marker').innerHTML = '<i class="ph ph-check"></i>';
+        
+        if (req.status === 'pending') {
+          tBar.style.width = '0%';
+          s2.className = 'timeline-step active';
+          s2.querySelector('.step-label').textContent = 'Under Review';
+        } 
+        else if (req.status === 'approved') {
+          tBar.style.width = '33%';
+          s2.className = 'timeline-step completed';
+          s2.querySelector('.step-marker').innerHTML = '<i class="ph ph-check"></i>';
+          s3.className = 'timeline-step active';
+        } 
+        else if (req.status === 'ready') {
+          tBar.style.width = '66%';
+          s2.className = 'timeline-step completed';
+          s2.querySelector('.step-marker').innerHTML = '<i class="ph ph-check"></i>';
+          s3.className = 'timeline-step completed';
+          s3.querySelector('.step-marker').innerHTML = '<i class="ph ph-check"></i>';
+          s4.className = 'timeline-step active';
+        }
+        else if (req.status === 'completed') {
+          tBar.style.width = '100%';
+          s2.className = 'timeline-step completed';
+          s2.querySelector('.step-marker').innerHTML = '<i class="ph ph-check"></i>';
+          s3.className = 'timeline-step completed';
+          s3.querySelector('.step-marker').innerHTML = '<i class="ph ph-check"></i>';
+          s4.className = 'timeline-step completed';
+          s4.querySelector('.step-marker').innerHTML = '<i class="ph ph-check"></i>';
+        }
+      }
+
+      // --- 3. Donation Overview ---
+      document.getElementById('dImage').src = req.image;
+      document.getElementById('dName').textContent = req.foodName;
+      document.getElementById('dDonor').textContent = req.donorLocation;
+      document.getElementById('dTotalSrv').textContent = `${req.availableServings} max`;
+      document.getElementById('dDist').textContent = req.distance;
+      document.getElementById('dExp').textContent = new Date(req.expiryTime).toLocaleString('en-US', {month:'short', day:'numeric', hour:'numeric', minute:'numeric'});
+      document.getElementById('dNote').textContent = req.donorNote;
+
+      // --- 4. Request Info ---
+      document.getElementById('rOrg').textContent = req.receiverOrg;
+      document.getElementById('rPerson').textContent = req.receiverContact;
+      document.getElementById('rSrv').textContent = `${req.requestedServings} servings`;
+      document.getElementById('rSubmit').textContent = new Date(req.requestDate).toLocaleString('en-US', {month:'short', day:'numeric', hour:'numeric', minute:'numeric'});
+      document.getElementById('rNote').textContent = req.receiverNote || "N/A";
+
+      // --- 5. Pickup Info ---
+      document.getElementById('pLoc').textContent = req.donorLocation;
+      document.getElementById('pPrefTime').textContent = req.pickupTime;
+      document.getElementById('pContact').textContent = req.pickupContact;
+
+      // --- 6. Action Rendering ---
+      const actArea = document.getElementById('actionArea');
+      let actHtml = `<a href="requests.html" class="btn-outline" style="text-decoration:none;"><i class="ph ph-arrow-left"></i> Back to Requests</a>`;
+      
+      if (req.status === 'pending' || req.status === 'approved') {
+        actHtml += `<button class="btn-danger-outline" style="border: 1px solid #ef4444; color: #ef4444; background: transparent; padding: 0.8rem 1.5rem; border-radius: 8px; font-weight: 500; cursor: pointer;" id="cancelTrigger">Cancel Request</button>`;
+      }
+      if (req.status === 'completed' || req.status === 'cancelled' || req.status === 'rejected') {
+        actHtml += `<a href="donations.html" class="btn-primary" style="text-decoration:none;"><i class="ph ph-map-pin"></i> Browse New Donations</a>`;
+      }
+      actArea.innerHTML = actHtml;
+
+      // --- 7. Modal Flow ---
+      const cancelTrigger = document.getElementById('cancelTrigger');
+      const modal = document.getElementById('cancelModal');
+      
+      if (cancelTrigger) {
+        cancelTrigger.addEventListener('click', () => {
+          modal.style.display = 'flex';
+        });
+
+        document.getElementById('btnCancelModal').addEventListener('click', () => {
+          modal.style.display = 'none';
+        });
+
+        document.getElementById('btnConfirmCancel').addEventListener('click', () => {
+          document.getElementById('btnConfirmCancel').innerHTML = `<i class="ph ph-spinner ph-spin"></i> Cancelling...`;
+          setTimeout(() => {
+            // Persist the state change
+            const idx = mockRequests.findIndex(r => r.id === reqId);
+            if (idx !== -1) {
+              mockRequests[idx].status = 'cancelled';
+              localStorage.setItem('receiverMockRequests', JSON.stringify(mockRequests));
+              
+              if (mockRequests[idx].donationId) {
+                let rDon = JSON.parse(localStorage.getItem('requestedDonations')) || [];
+                rDon = rDon.filter(did => did !== mockRequests[idx].donationId);
+                localStorage.setItem('requestedDonations', JSON.stringify(rDon));
+              }
+            }
+            window.location.href = "requests.html";
+          }, 800);
+        });
+      }
+
+    });
+  </script>
+</body>
+</html>

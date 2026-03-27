@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Receiver Profile | Food Donation</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    .page-header { margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end; }
+    .back-link { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--primary-color); text-decoration: none; font-weight: 500; margin-bottom: 1rem; }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body class="dashboard-body">
+
+  <div class="dashboard-wrapper profile-wrapper">
+    
+    <!-- Top Header -->
+    <a href="dashboard.html" class="back-link"><i class="ph ph-arrow-left"></i> Back to Dashboard</a>
+    <header class="page-header">
+      <div>
+        <h1 style="font-size: 1.8rem; color: var(--text-main); margin-bottom: 0.5rem;">Organization Profile</h1>
+        <p style="color: var(--text-muted); font-size: 1rem;">Manage your organization details, contact info, and preferences.</p>
+      </div>
+    </header>
+
+    <div class="profile-grid">
+      
+      <!-- LEFT COLUMN: Profile Summary Sidebar -->
+      <aside>
+        <div class="profile-card">
+          <div class="profile-avatar-wrapper">
+            <div class="profile-avatar" id="avatarDisplay">HF</div>
+            <div class="verified-badge"><i class="ph ph-check"></i></div>
+          </div>
+          <h2 id="cardOrgName">Hope Foundation</h2>
+          <div class="profile-type" id="cardOrgType">NGO</div>
+          
+          <div style="font-size:0.85rem; color:var(--text-muted); display:inline-flex; align-items:center; gap:0.4rem; background:#f0fdf4; padding:0.2rem 0.6rem; border-radius:99px; color:#16a34a; font-weight:600;">
+            <i class="ph ph-shield-check"></i> Active Account
+          </div>
+
+          <div class="profile-stats">
+            <div class="profile-stat-item">
+              <span class="val">18</span>
+              <span class="lbl">Pickups</span>
+            </div>
+            <div class="profile-stat-item">
+              <span class="val">Jan 2026</span>
+              <span class="lbl">Joined</span>
+            </div>
+          </div>
+
+          <div class="profile-detail-list">
+            <div class="item">
+              <i class="ph ph-user"></i> <span id="cardContact">Sarah Jenkins</span>
+            </div>
+            <div class="item">
+              <i class="ph ph-envelope-simple"></i> <span id="cardEmail">contact@hopefoundation.org</span>
+            </div>
+            <div class="item">
+              <i class="ph ph-phone"></i> <span id="cardPhone">+1 555-019-2048</span>
+            </div>
+            <div class="item">
+              <i class="ph ph-map-pin"></i> <span id="cardAddress">Downtown Area, NY</span>
+            </div>
+          </div>
+
+          <div class="completion-wrapper">
+            <div class="completion-header">
+              <span>Profile Completion</span>
+              <span style="color:var(--success-color);">90%</span>
+            </div>
+            <div class="completion-bar">
+              <div class="completion-fill"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-card" style="margin-top:2rem; padding: 1.5rem;">
+          <h3 style="font-size:1.1rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; margin-bottom:1rem; text-align:left;">Base Location Details</h3>
+          <div class="map-card">
+            <i class="ph ph-map-trifold" style="font-size: 2.5rem;"></i>
+            <span>Map Preview Area</span>
+          </div>
+          <p style="font-size:0.85rem; color:var(--text-muted); text-align:left; margin-top:1rem;">
+            Operating within an estimated <strong>15 km</strong> service radius natively.
+          </p>
+        </div>
+
+      </aside>
+
+      <!-- RIGHT COLUMN: Editable Form Area -->
+      <main>
+        <div class="profile-form-section">
+          <div class="section-header-flex">
+            <h3>General Details</h3>
+            <button class="btn-edit" id="btnEditProfile"><i class="ph ph-pencil-simple"></i> Edit Profile</button>
+          </div>
+
+          <form id="profileForm" class="form-readonly" novalidate>
+            
+            <div class="form-row">
+              <div class="form-group" id="groupOrgName">
+                <label>Organization Name *</label>
+                <input type="text" id="inpOrgName" value="Hope Foundation Shelters">
+                <span class="error-message">Organization name is required.</span>
+              </div>
+              <div class="form-group" id="groupOrgType">
+                <label>Organization Type *</label>
+                <select id="inpOrgType">
+                  <option value="Orphanage">Orphanage</option>
+                  <option value="Old Age Home">Old Age Home</option>
+                  <option value="NGO" selected>NGO</option>
+                  <option value="Shelter">Shelter</option>
+                  <option value="Community Kitchen">Community Kitchen</option>
+                  <option value="Other">Other</option>
+                </select>
+                <span class="error-message">Type is required.</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group" id="groupContact">
+                <label>Contact Person Name *</label>
+                <input type="text" id="inpContact" value="Sarah Jenkins">
+                <span class="error-message">Contact person required.</span>
+              </div>
+              <div class="form-group" id="groupPhone">
+                <label>Phone Number *</label>
+                <input type="tel" id="inpPhone" value="+1 555-019-2048">
+                <span class="error-message">Valid phone number required.</span>
+              </div>
+            </div>
+
+            <div class="form-group" id="groupEmail">
+              <label>Organization Email *</label>
+              <input type="email" id="inpEmail" value="contact@hopefoundation.org">
+              <span class="error-message">Valid email address required.</span>
+            </div>
+
+            <div class="form-group" id="groupAddress">
+              <label>Full Street Address *</label>
+              <input type="text" id="inpAddress" value="452 Hope Street, Suite 4">
+              <span class="error-message">Address required.</span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group" id="groupCity">
+                <label>City / Area *</label>
+                <input type="text" id="inpCity" value="New York Downtown">
+                <span class="error-message">City required.</span>
+              </div>
+              <div class="form-group" id="groupPincode">
+                <label>Pincode / Zip (Optional)</label>
+                <input type="text" id="inpPincode" value="10001">
+                <span class="error-message">Numeric pincode only.</span>
+              </div>
+            </div>
+
+            <div class="section-header-flex" style="margin-top:2rem; padding-bottom: 0.5rem; border-color: transparent;">
+              <h3>About the Organization</h3>
+            </div>
+
+            <div class="form-group">
+              <label>Mission / Description</label>
+              <textarea id="inpAbout" rows="4">We focus on collecting surplus catering and restaurant excess to feed individuals experiencing housing instability within the lower metropolitan limits. We currently distribute nearly 1,000 warm meals per week.</textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Average Daily Capacity Served (Optional)</label>
+                <input type="number" id="inpCapacity" value="150">
+              </div>
+              <div class="form-group">
+                <label>Preferred Dietary Categories</label>
+                <input type="text" id="inpDiet" value="Mixed, Vegetarian Priority">
+              </div>
+            </div>
+
+            <div class="edit-actions" id="editActions">
+              <button type="button" class="btn-outline" id="btnCancel" style="padding:0.75rem 1.5rem;">Cancel</button>
+              <button type="submit" class="btn-primary" id="btnSave" style="width: auto;">Save Changes</button>
+            </div>
+          </form>
+
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <div class="toast" id="toast">
+    <i class="ph ph-check-circle"></i>
+    <span id="toastMsg">Profile updated successfully!</span>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      const mockDataStore = {
+        orgName: "Hope Foundation Shelters",
+        orgType: "NGO",
+        contactPerson: "Sarah Jenkins",
+        phone: "+1 555-019-2048",
+        email: "contact@hopefoundation.org",
+        address: "452 Hope Street, Suite 4",
+        city: "New York Downtown",
+        pincode: "10001",
+        about: "We focus on collecting surplus catering and restaurant excess to feed individuals experiencing housing instability within the lower metropolitan limits. We currently distribute nearly 1,000 warm meals per week.",
+        capacity: "150",
+        diet: "Mixed, Vegetarian Priority"
+      };
+
+      let currentData = { ...mockDataStore };
+
+      // Elements
+      const profileForm = document.getElementById('profileForm');
+      const btnEditProfile = document.getElementById('btnEditProfile');
+      const editActions = document.getElementById('editActions');
+      const btnCancel = document.getElementById('btnCancel');
+      const btnSave = document.getElementById('btnSave');
+      const toast = document.getElementById('toast');
+
+      // Inputs
+      const inpOrgName = document.getElementById('inpOrgName');
+      const inpOrgType = document.getElementById('inpOrgType');
+      const inpContact = document.getElementById('inpContact');
+      const inpPhone = document.getElementById('inpPhone');
+      const inpEmail = document.getElementById('inpEmail');
+      const inpAddress = document.getElementById('inpAddress');
+      const inpCity = document.getElementById('inpCity');
+      const inpPincode = document.getElementById('inpPincode');
+      const inpAbout = document.getElementById('inpAbout');
+      const inpCapacity = document.getElementById('inpCapacity');
+      const inpDiet = document.getElementById('inpDiet');
+
+      function syncToDOM() {
+        inpOrgName.value = currentData.orgName;
+        inpOrgType.value = currentData.orgType;
+        inpContact.value = currentData.contactPerson;
+        inpPhone.value = currentData.phone;
+        inpEmail.value = currentData.email;
+        inpAddress.value = currentData.address;
+        inpCity.value = currentData.city;
+        inpPincode.value = currentData.pincode;
+        inpAbout.value = currentData.about;
+        inpCapacity.value = currentData.capacity;
+        inpDiet.value = currentData.diet;
+        
+        // Update Sidebar View automatically
+        document.getElementById('cardOrgName').textContent = currentData.orgName;
+        document.getElementById('cardOrgType').textContent = currentData.orgType;
+        document.getElementById('cardContact').textContent = currentData.contactPerson;
+        document.getElementById('cardEmail').textContent = currentData.email;
+        document.getElementById('cardPhone').textContent = currentData.phone;
+        document.getElementById('cardAddress').textContent = currentData.city;
+        
+        // Render Avatar Initials
+        const initials = currentData.orgName.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+        document.getElementById('avatarDisplay').textContent = initials;
+      }
+
+      function toggleEditMode(enable) {
+        if (enable) {
+          profileForm.classList.remove('form-readonly');
+          editActions.classList.add('active');
+          btnEditProfile.style.display = 'none';
+        } else {
+          profileForm.classList.add('form-readonly');
+          editActions.classList.remove('active');
+          btnEditProfile.style.display = 'flex';
+          
+          // Clear any visual errors
+          document.querySelectorAll('.form-group.error').forEach(g => g.classList.remove('error'));
+        }
+      }
+
+      // Load initial state
+      syncToDOM();
+
+      // Interactions
+      btnEditProfile.addEventListener('click', () => {
+        toggleEditMode(true);
+      });
+
+      btnCancel.addEventListener('click', () => {
+        syncToDOM(); // Revert back to latest saved state
+        toggleEditMode(false);
+      });
+
+      // Validations
+      const valInput = (el, groupName, condition) => {
+        const grp = document.getElementById(groupName);
+        if (condition(el.value.trim())) {
+          grp.classList.remove('error');
+          return true;
+        } else {
+          grp.classList.add('error');
+          return false;
+        }
+      };
+
+      profileForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        let isValid = true;
+        
+        isValid = valInput(inpOrgName, 'groupOrgName', v => v.length > 0) && isValid;
+        isValid = valInput(inpOrgType, 'groupOrgType', v => v.length > 0) && isValid;
+        isValid = valInput(inpContact, 'groupContact', v => v.length > 0) && isValid;
+        isValid = valInput(inpPhone, 'groupPhone', v => v.length >= 8) && isValid;
+        isValid = valInput(inpEmail, 'groupEmail', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.toLowerCase())) && isValid;
+        isValid = valInput(inpAddress, 'groupAddress', v => v.length > 0) && isValid;
+        isValid = valInput(inpCity, 'groupCity', v => v.length > 0) && isValid;
+        
+        // Optional
+        if (inpPincode.value.trim() !== '') {
+           isValid = valInput(inpPincode, 'groupPincode', v => /^\d+$/.test(v)) && isValid;
+        }
+
+        if (isValid) {
+          // Mock Save logic
+          btnSave.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Saving...`;
+          btnSave.disabled = true;
+
+          setTimeout(() => {
+            // Commit to mock state
+            currentData.orgName = inpOrgName.value.trim();
+            currentData.orgType = inpOrgType.value;
+            currentData.contactPerson = inpContact.value.trim();
+            currentData.phone = inpPhone.value.trim();
+            currentData.email = inpEmail.value.trim();
+            currentData.address = inpAddress.value.trim();
+            currentData.city = inpCity.value.trim();
+            currentData.pincode = inpPincode.value.trim();
+            currentData.about = inpAbout.value.trim();
+            currentData.capacity = inpCapacity.value.trim();
+            currentData.diet = inpDiet.value.trim();
+
+            syncToDOM();
+            toggleEditMode(false);
+            
+            btnSave.innerHTML = `Save Changes`;
+            btnSave.disabled = false;
+            
+            // Show Toast
+            toast.classList.add('show', 'success');
+            setTimeout(() => {
+              toast.classList.remove('show');
+            }, 3000);
+
+          }, 800);
+        }
+      });
+
+    });
+  </script>
+</body>
+</html>

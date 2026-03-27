@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Donation Details | Food Donation</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    /* Inline helper for spacing */
+    .back-nav {
+      margin-bottom: 2rem;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    
+    /* Layout controls */
+    .content-area { display: none; }
+    .not-found-state { display: none; }
+  </style>
+</head>
+<body class="dashboard-body">
+
+  <div class="dashboard-wrapper details-wrapper">
+    
+    <!-- Top Navigation Area -->
+    <nav class="back-nav">
+      <a href="donations.html" class="back-link">
+        <i class="ph ph-arrow-left"></i> Back to Nearby Donations
+      </a>
+      <div style="margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">
+        Dashboard / Donations / <span id="breadcrumbTitle" style="color: var(--text-main); font-weight:500;">Details</span>
+      </div>
+    </nav>
+
+    <!-- Invalid State -->
+    <div class="empty-state not-found-state" id="notFoundState" style="display: none; margin-top: 2rem;">
+      <i class="ph ph-warning-circle empty-icon" style="color: #ef4444;"></i>
+      <h3>Donation Not Found</h3>
+      <p>The donation you are looking for does not exist or has been removed.</p>
+      <a href="donations.html" class="btn-primary" style="display:inline-block; width:auto; margin-top:1.5rem; text-decoration:none;">
+        Return to Listings
+      </a>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="content-area" id="contentArea">
+      
+      <div class="details-grid">
+        
+        <!-- Left Column (Main Details) -->
+        <div class="col-left">
+          
+          <!-- Hero Section -->
+          <div class="hero-card">
+            <img src="" id="detailImage" class="hero-img" alt="Food image">
+            <div class="hero-content">
+              <div class="hero-header">
+                <h1 class="hero-title" id="detailName">...</h1>
+                <span id="detailStatus" class="status-badge">...</span>
+              </div>
+              
+              <div class="hero-tags" id="detailTags">
+                <!-- Tags JS populated -->
+              </div>
+              
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="info-label">Quantity</span>
+                  <span class="info-value"><i class="ph ph-scales" style="color:var(--primary-color);"></i> <span id="detailQty"></span></span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Estimated Servings</span>
+                  <span class="info-value"><i class="ph ph-users" style="color:var(--primary-color);"></i> <span id="detailServings"></span> people</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description and Notes Section -->
+          <div class="info-card">
+            <h3><i class="ph ph-notepad"></i> Description & Notes</h3>
+            <p id="detailNotes" style="color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;"></p>
+            
+            <div class="info-grid" style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
+              <div class="info-item">
+                <span class="info-label">Packaging / Container</span>
+                <span class="info-value" id="detailPackaging">Using sealed trays</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Handling</span>
+                <span class="info-value" id="detailHandling">Keep upright, maintain temperature</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Food Safety Information -->
+          <div class="safety-box">
+            <h4><i class="ph ph-shield-check"></i> Best Practices for Receivers</h4>
+            <ul>
+              <li>This food was reported as recently prepared by the donor.</li>
+              <li>Please arrange for pickup and storage maintaining proper temperature controls.</li>
+              <li>Ensure it is safely consumed before the expiry window finishes.</li>
+              <li>Always verify the physical condition during pickup.</li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- Right Column (Location, Timing, Actions) -->
+        <div class="col-right">
+          
+          <!-- Actions Block -->
+          <div class="info-card sidebar-actions">
+            <button class="btn-primary btn-large btn-request" id="btnRequestFood">
+              <i class="ph ph-hand-heart"></i> Request This Food
+            </button>
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+              <button class="btn-outline" style="flex:1;"><i class="ph ph-bookmark-simple"></i> Save</button>
+              <button class="btn-outline" style="flex:1;"><i class="ph ph-share-network"></i> Share</button>
+            </div>
+          </div>
+
+          <!-- Timing Information Block -->
+          <div class="info-card">
+            <h3><i class="ph ph-clock"></i> Timing Information</h3>
+            <div class="info-grid" style="grid-template-columns: 1fr; gap: 1rem;">
+              <div class="info-item">
+                <span class="info-label">Prepared Time</span>
+                <span class="info-value" id="detailPrepared">...</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Expiry Time</span>
+                <span class="info-value" id="detailExpiry">...</span>
+              </div>
+            </div>
+            
+            <div class="timing-urgency" id="urgencyBlock" style="display:none;">
+              <p><i class="ph ph-warning-circle"></i> <span id="detailTimeLeft">Expiring very soon. Immediate pickup required.</span></p>
+            </div>
+          </div>
+
+          <!-- Location and Pickup Block -->
+          <div class="info-card">
+            <h3><i class="ph ph-map-pin"></i> Pickup Location</h3>
+            <div class="map-placeholder">
+              <i class="ph ph-map-trifold"></i> Map View
+            </div>
+            
+            <div class="info-grid" style="grid-template-columns: 1fr; gap: 1rem;">
+              <div class="info-item">
+                <span class="info-label">Donor Facility</span>
+                <span class="info-value" id="detailDonorLoc">...</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Distance</span>
+                <span class="info-value"><i class="ph ph-person-simple-walk" style="color:var(--primary-color);"></i> <span id="detailDistance"></span> km away</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Pickup Window</span>
+                <span class="info-value" id="detailPickupWindow">Anytime before expiry</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      
+      <!-- Related Donations Section -->
+      <div class="related-section">
+        <h2>Similar Nearby Donations</h2>
+        <div class="donations-grid" id="relatedContainer">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Copy of Mock Data (Same as donations.html)
+    const mockDonations = [
+      {
+        id: 1,
+        image: "https://images.unsplash.com/photo-1599839619722-39751411ea63?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        foodName: "Fresh Baked Bread & Pastries",
+        foodType: "Bakery",
+        category: "Prepared Food",
+        vegType: "veg",
+        quantity: "15 lbs",
+        servings: 20,
+        donorLocation: "Sunrise Bakery",
+        distance: 1.2,
+        preparedTime: new Date(Date.now() - 3600000).toISOString(),
+        expiryTime: new Date(Date.now() + 7200000).toISOString(), 
+        notes: "Assorted leftover breads and muffins from morning batch. Perfect for breakfast handouts.",
+        status: "Available",
+        isUrgent: true,
+        packaging: "Cardboard Bakery Boxes",
+        handling: "Room temperature, keep away from moisture."
+      },
+      {
+        id: 2,
+        image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        foodName: "Mixed Veg & Rice Trays",
+        foodType: "Hot Meals",
+        category: "Cooked Meals",
+        vegType: "veg",
+        quantity: "3 Trays",
+        servings: 30,
+        donorLocation: "TechCorp Cafeteria",
+        distance: 3.5,
+        preparedTime: new Date(Date.now() - 7200000).toISOString(),
+        expiryTime: new Date(Date.now() + 21600000).toISOString(),
+        notes: "Containers are completely sealed. Mildly spiced to accommodate most dietary preferences.",
+        status: "Available",
+        isUrgent: false,
+        packaging: "Aluminum catering trays with lids",
+        handling: "Hot holding required if served immediately, or refrigerate."
+      },
+      {
+        id: 3,
+        image: "https://images.unsplash.com/photo-1544025162-8315ea07f4a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        foodName: "Grilled Chicken Salads",
+        foodType: "Cold Meals",
+        category: "Salads",
+        vegType: "non-veg",
+        quantity: "10 Boxes",
+        servings: 10,
+        donorLocation: "Fresh Bites Cafe",
+        distance: 2.1,
+        preparedTime: new Date(Date.now() - 14400000).toISOString(),
+        expiryTime: new Date(Date.now() + 10800000).toISOString(),
+        notes: "Individual salads. Dressing is provided in separate packets.",
+        status: "Available",
+        isUrgent: false,
+        packaging: "Individual plastic containers",
+        handling: "Must remain refrigerated."
+      },
+      {
+        id: 4,
+        image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        foodName: "Event Leftovers (Buffet)",
+        foodType: "Mixed",
+        category: "Catering",
+        vegType: "non-veg",
+        quantity: "Large Assortment",
+        servings: 50,
+        donorLocation: "Grand Hotel Plaza",
+        distance: 4.1,
+        preparedTime: new Date(Date.now() - 5400000).toISOString(),
+        expiryTime: new Date(Date.now() + 3600000).toISOString(),
+        notes: "Assorted heavy catering leftovers. Mostly pasta, roasted veggies, and carved meats.",
+        status: "Available",
+        isUrgent: true,
+        packaging: "Multiple large gastro-pans",
+        handling: "Bring a large vehicle for pickup."
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const reqId = parseInt(urlParams.get('id'));
+
+      const notFoundState = document.getElementById('notFoundState');
+      const contentArea = document.getElementById('contentArea');
+
+      const donation = mockDonations.find(d => d.id === reqId);
+
+      if (!donation) {
+        notFoundState.style.display = 'block';
+        return;
+      }
+
+      // Valid ID - Show Content
+      contentArea.style.display = 'block';
+
+      // Elements
+      document.getElementById('breadcrumbTitle').textContent = donation.foodName;
+      document.getElementById('detailImage').src = donation.image;
+      document.getElementById('detailName').textContent = donation.foodName;
+      
+      // Status Badge
+      const statusEl = document.getElementById('detailStatus');
+      let requestedIdsCheck = JSON.parse(localStorage.getItem('requestedDonations')) || [];
+      let displayStatus = donation.status;
+      if (requestedIdsCheck.includes(reqId)) displayStatus = 'Requested';
+
+      statusEl.textContent = displayStatus;
+      if (displayStatus === 'Available') statusEl.className = 'status-badge status-available';
+      else if (displayStatus === 'Requested' || displayStatus === 'Reserved') statusEl.className = 'status-badge status-reserved';
+      else statusEl.className = 'status-badge status-unavailable';
+
+      // Tags
+      const tagsEl = document.getElementById('detailTags');
+      let tagsHtml = `
+        <span class="badge-tag ${donation.vegType === 'veg' ? 'veg' : 'non-veg'}">
+          ${donation.vegType === 'veg' ? 'Vegetarian' : 'Non-Veg'}
+        </span>
+        <span class="badge-tag" style="background:var(--bg-color); color:var(--primary-color)">${donation.category}</span>
+      `;
+      if (donation.isUrgent) {
+        tagsHtml += `<span class="badge-tag" style="background:#fef2f2; color:#ef4444;"><i class="ph ph-clock-countdown"></i> Expiring Soon</span>`;
+      }
+      if (donation.servings >= 30) {
+        tagsHtml += `<span class="badge-tag" style="background:#e0f2fe; color:#0284c7;"><i class="ph ph-users"></i> Large Quantity</span>`;
+      }
+      tagsEl.innerHTML = tagsHtml;
+
+      // Summary
+      document.getElementById('detailQty').textContent = donation.quantity;
+      document.getElementById('detailServings').textContent = donation.servings;
+      document.getElementById('detailNotes').textContent = donation.notes;
+      document.getElementById('detailPackaging').textContent = donation.packaging || "Standard containers";
+      document.getElementById('detailHandling').textContent = donation.handling || "General safe handling";
+
+      // Timeline / Location
+      document.getElementById('detailDonorLoc').textContent = donation.donorLocation;
+      document.getElementById('detailDistance').textContent = donation.distance;
+      
+      const prepDate = new Date(donation.preparedTime);
+      const expDate = new Date(donation.expiryTime);
+      document.getElementById('detailPrepared').textContent = prepDate.toLocaleString('en-US', { hour:'numeric', minute:'numeric', month:'short', day:'numeric' });
+      document.getElementById('detailExpiry').textContent = expDate.toLocaleString('en-US', { hour:'numeric', minute:'numeric', month:'short', day:'numeric' });
+
+      // Urgency Block Logic
+      const hoursLeft = (expDate - new Date()) / 3600000;
+      if (hoursLeft > 0 && hoursLeft <= 3) {
+        document.getElementById('urgencyBlock').style.display = 'block';
+        document.getElementById('detailTimeLeft').textContent = `Expiring in ~${Math.ceil(hoursLeft)} hours. Recommended pickup within 45 minutes to ensure sorting.`;
+      }
+
+      // Request Button State
+      const btnReq = document.getElementById('btnRequestFood');
+      const hasBeenRequested = requestedIdsCheck.includes(reqId);
+
+      if (donation.status !== 'Available' || hasBeenRequested) {
+        btnReq.disabled = true;
+        btnReq.style.background = '#94a3b8';
+        btnReq.style.cursor = 'not-allowed';
+        btnReq.innerHTML = `<i class="ph ph-lock-key"></i> Currently ${hasBeenRequested ? 'Requested' : donation.status}`;
+      } else {
+        btnReq.addEventListener('click', () => {
+          window.location.href = `request.html?id=${reqId}`;
+        });
+      }
+
+      // Render Related Donations (Filter out current, show 2)
+      const related = mockDonations.filter(d => d.id !== reqId && d.vegType === donation.vegType).slice(0, 2);
+      const relatedEl = document.getElementById('relatedContainer');
+      
+      if (related.length === 0) {
+        document.querySelector('.related-section').style.display = 'none';
+      } else {
+        relatedEl.innerHTML = related.map(item => `
+          <div class="donation-card">
+            <div class="card-img" style="background-image: url('${item.image}'); height:120px;"></div>
+            <div class="card-body">
+              <h3 class="card-title" style="font-size:1rem;">${item.foodName}</h3>
+              <div class="card-meta" style="font-size:0.75rem; margin-bottom:0.5rem;">
+                <span><i class="ph ph-scales"></i> ~${item.servings} servings</span>
+                <span><i class="ph ph-person-simple-walk"></i> ${item.distance} km away</span>
+              </div>
+              <a href="donation-details.html?id=${item.id}" class="btn-outline" style="font-size:0.75rem; padding:0.3rem 0.6rem; text-decoration:none;">View</a>
+            </div>
+          </div>
+        `).join('');
+      }
+
+    });
+  </script>
+</body>
+</html>

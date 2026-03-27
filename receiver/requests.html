@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Requests | Food Donation</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    .page-header { margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; }
+    .header-actions { display: flex; gap: 1rem; }
+  </style>
+</head>
+<body class="dashboard-body">
+
+  <div class="dashboard-wrapper">
+    
+    <!-- Top Header -->
+    <header class="page-header">
+      <div>
+        <h1 style="font-size: 1.8rem; color: var(--text-main); margin-bottom: 0.5rem;">My Requests</h1>
+        <p style="color: var(--text-muted); font-size: 1rem;">Track all your food pickup requests in one place.</p>
+      </div>
+      <div class="header-actions">
+        <a href="dashboard.html" class="btn-outline" style="text-decoration:none;"><i class="ph ph-squares-four"></i> Dashboard</a>
+        <a href="donations.html" class="btn-primary" style="text-decoration:none;"><i class="ph ph-magnifying-glass"></i> Browse Donations</a>
+      </div>
+    </header>
+
+    <!-- Summary Overview Cards -->
+    <div class="requests-overview" id="summaryContainer">
+      <!-- Injected by JS -->
+    </div>
+
+    <!-- Status Tabs -->
+    <div class="tabs-container" id="statusTabs">
+      <button class="tab-btn active" data-status="all">All Requests</button>
+      <button class="tab-btn" data-status="pending">Pending</button>
+      <button class="tab-btn" data-status="approved">Approved</button>
+      <button class="tab-btn" data-status="ready">Pickup Ready</button>
+      <button class="tab-btn" data-status="completed">Completed</button>
+      <button class="tab-btn" data-status="cancelled">Cancelled</button>
+    </div>
+
+    <!-- Controls (Search & Sort) -->
+    <div class="filter-bar" style="flex-direction:row; align-items:center; padding:1rem 1.5rem;">
+      <div class="search-input-wrapper" style="max-width:400px;">
+        <i class="ph ph-magnifying-glass"></i>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search by food name, donor, or ref...">
+      </div>
+      <div style="flex:1;"></div>
+      <select class="sort-select" id="sortSelect">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+        <option value="nearest">Nearest Donor</option>
+      </select>
+    </div>
+
+    <!-- Requests Container -->
+    <div id="requestsContainer" style="display: flex; flex-direction: column; gap: 1.5rem;">
+      <!-- Cards rendered here by JS -->
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState" style="display: none; margin-top: 2rem;">
+      <i class="ph ph-tray empty-icon" style="color: #cbd5e1;"></i>
+      <h3>No requests found</h3>
+      <p>You don't have any requests matching your current filters.</p>
+      <button class="btn-outline" id="btnClearFilters" style="margin-top: 1rem;">Clear Filters</button>
+    </div>
+
+  </div>
+
+  <!-- Cancel Confirmation Modal -->
+  <div class="modal-overlay" id="cancelModal">
+    <div class="modal-content">
+      <i class="ph ph-warning-circle modal-icon"></i>
+      <h3 class="modal-title">Cancel Request?</h3>
+      <p class="modal-text">Are you sure you want to cancel this food pickup request? The donor will be notified.</p>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="btnCancelModal">No, Keep It</button>
+        <button class="btn-danger" id="btnConfirmCancel">Yes, Cancel Request</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mock Data
+    const defaultMockRequests = [
+      {
+        id: "REQ-1004",
+        donationId: 1,
+        foodName: "Fresh Baked Bread & Pastries",
+        image: "https://images.unsplash.com/photo-1599839619722-39751411ea63?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        requestedServings: 20,
+        donorLocation: "Sunrise Bakery",
+        distance: 1.2,
+        requestDate: new Date(Date.now() - 3600000).toISOString(),
+        pickupTime: "ASAP (Within 30m)",
+        status: "pending"
+      },
+      {
+        id: "REQ-1003",
+        donationId: 2,
+        foodName: "Mixed Veg & Rice Trays",
+        image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        requestedServings: 30,
+        donorLocation: "TechCorp Cafeteria",
+        distance: 3.5,
+        requestDate: new Date(Date.now() - 14400000).toISOString(),
+        pickupTime: "Within 1 Hour",
+        status: "approved"
+      },
+      {
+        id: "REQ-1002",
+        donationId: null,
+        foodName: "Leftover Sandwiches",
+        image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        requestedServings: 15,
+        donorLocation: "Downtown Deli",
+        distance: 0.8,
+        requestDate: new Date(Date.now() - 86400000).toISOString(),
+        pickupTime: "Custom Time: 2:00 PM",
+        status: "ready"
+      },
+      {
+        id: "REQ-1001",
+        donationId: null,
+        foodName: "Assorted Produce Box",
+        image: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        requestedServings: 40,
+        donorLocation: "Green Grocers",
+        distance: 5.1,
+        requestDate: new Date(Date.now() - 172800000).toISOString(),
+        pickupTime: "ASAP",
+        status: "completed"
+      },
+      {
+        id: "REQ-1000",
+        donationId: null,
+        foodName: "Tomato Soup Batch",
+        image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        requestedServings: 25,
+        donorLocation: "Corner Diner",
+        distance: 2.3,
+        requestDate: new Date(Date.now() - 259200000).toISOString(),
+        pickupTime: "Later Today",
+        status: "cancelled"
+      }
+    ];
+
+    // State
+    let currentTab = 'all';
+    let searchQuery = '';
+    let currentSort = 'newest';
+    let requestToCancel = null;
+
+    // Elements
+    const summaryContainer = document.getElementById('summaryContainer');
+    const tabs = document.querySelectorAll('.tab-btn');
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
+    const container = document.getElementById('requestsContainer');
+    const emptyState = document.getElementById('emptyState');
+    const btnClearFilters = document.getElementById('btnClearFilters');
+    
+    // Modal Elements
+    const modal = document.getElementById('cancelModal');
+    const btnCancelModal = document.getElementById('btnCancelModal');
+    const btnConfirmCancel = document.getElementById('btnConfirmCancel');
+
+    // Initialize LocalStorage Persistence
+    let mockRequests = JSON.parse(localStorage.getItem('receiverMockRequests'));
+    if (!mockRequests) {
+      mockRequests = defaultMockRequests;
+      localStorage.setItem('receiverMockRequests', JSON.stringify(mockRequests));
+    }
+
+    function formatStatus(statusStr) {
+      if (statusStr === 'ready') return "Pickup Ready";
+      return statusStr.charAt(0).toUpperCase() + statusStr.slice(1);
+    }
+
+    function renderSummary() {
+      const counts = { all: mockRequests.length, pending: 0, approved: 0, ready: 0, completed: 0, cancelled: 0 };
+      mockRequests.forEach(r => {
+        if (counts[r.status] !== undefined) counts[r.status]++;
+      });
+
+      summaryContainer.innerHTML = `
+        <div class="overview-card"><span class="count">${counts.all}</span><span class="label">Total Requests</span></div>
+        <div class="overview-card"><span class="count">${counts.pending}</span><span class="label" style="color:#b45309;">Pending</span></div>
+        <div class="overview-card"><span class="count">${counts.approved}</span><span class="label" style="color:#0284c7;">Approved</span></div>
+        <div class="overview-card"><span class="count">${counts.ready}</span><span class="label" style="color:#16a34a;">Pickup Ready</span></div>
+        <div class="overview-card"><span class="count">${counts.completed}</span><span class="label" style="color:#475569;">Completed</span></div>
+      `;
+    }
+
+    function renderRequests() {
+      let filtered = mockRequests.filter(item => {
+        // Tab Filter
+        if (currentTab !== 'all' && item.status !== currentTab) return false;
+        
+        // Search Filter
+        if (searchQuery) {
+          const q = searchQuery.toLowerCase();
+          return item.foodName.toLowerCase().includes(q) || 
+                 item.donorLocation.toLowerCase().includes(q) || 
+                 item.id.toLowerCase().includes(q);
+        }
+        return true;
+      });
+
+      // Sort
+      filtered.sort((a, b) => {
+        if (currentSort === 'newest') return new Date(b.requestDate) - new Date(a.requestDate);
+        if (currentSort === 'oldest') return new Date(a.requestDate) - new Date(b.requestDate);
+        if (currentSort === 'nearest') return a.distance - b.distance;
+        return 0;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        emptyState.style.display = 'block';
+      } else {
+        emptyState.style.display = 'none';
+        container.innerHTML = filtered.map(item => `
+          <div class="request-card">
+            <img src="${item.image}" class="req-card-img" alt="Food">
+            <div class="req-card-content">
+              
+              <div class="req-card-header">
+                <div>
+                  <h3 class="req-title">${item.foodName}</h3>
+                  <span class="req-ref">#${item.id}</span>
+                </div>
+                <div class="status-pill ${item.status}">
+                  ${item.status === 'pending' ? '<i class="ph ph-hourglass-medium"></i>' : ''}
+                  ${item.status === 'approved' ? '<i class="ph ph-thumbs-up"></i>' : ''}
+                  ${item.status === 'ready' ? '<i class="ph ph-package"></i>' : ''}
+                  ${item.status === 'completed' ? '<i class="ph ph-check-circle"></i>' : ''}
+                  ${item.status === 'cancelled' ? '<i class="ph ph-prohibit"></i>' : ''}
+                  ${formatStatus(item.status)}
+                </div>
+              </div>
+              
+              <div class="req-details-grid">
+                <div class="req-detail">
+                  <span class="lbl"><i class="ph ph-scales"></i> Requested</span>
+                  <span class="val">${item.requestedServings} servings</span>
+                </div>
+                <div class="req-detail">
+                  <span class="lbl"><i class="ph ph-storefront"></i> Donor Area</span>
+                  <span class="val">${item.donorLocation} (${item.distance} km)</span>
+                </div>
+                <div class="req-detail">
+                  <span class="lbl"><i class="ph ph-calendar"></i> Requested On</span>
+                  <span class="val">${new Date(item.requestDate).toLocaleDateString('en-US', {month:'short', day:'numeric', hour:'numeric', minute:'numeric'})}</span>
+                </div>
+                <div class="req-detail">
+                  <span class="lbl"><i class="ph ph-clock"></i> Pref. Pickup</span>
+                  <span class="val">${item.pickupTime}</span>
+                </div>
+              </div>
+
+              <div class="req-card-actions">
+                ${(item.status === 'pending' || item.status === 'approved') 
+                  ? `<button class="btn-danger-outline" onclick="openCancelModal('${item.id}')">Cancel Request</button>` 
+                  : ''}
+                <a href="request-details.html?id=${item.id}" class="btn-outline" style="padding: 0.5rem 1rem; text-decoration:none;">View Details</a>
+              </div>
+
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Modal Operations
+    window.openCancelModal = function(id) {
+      requestToCancel = id;
+      modal.style.display = 'flex';
+    };
+
+    btnCancelModal.addEventListener('click', () => {
+      modal.style.display = 'none';
+      requestToCancel = null;
+    });
+
+    btnConfirmCancel.addEventListener('click', () => {
+      if (requestToCancel) {
+        // Mock State Update
+        btnConfirmCancel.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Cancelling...`;
+        
+        setTimeout(() => {
+          const req = mockRequests.find(r => r.id === requestToCancel);
+          if (req) {
+            req.status = 'cancelled';
+            localStorage.setItem('receiverMockRequests', JSON.stringify(mockRequests));
+            if (req.donationId) {
+              let rDon = JSON.parse(localStorage.getItem('requestedDonations')) || [];
+              rDon = rDon.filter(did => did !== req.donationId);
+              localStorage.setItem('requestedDonations', JSON.stringify(rDon));
+            }
+          }
+          
+          btnConfirmCancel.innerHTML = `Yes, Cancel Request`;
+          modal.style.display = 'none';
+          requestToCancel = null;
+          
+          renderSummary();
+          renderRequests();
+        }, 800);
+      }
+    });
+
+    // Event Listeners
+    tabs.forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        tabs.forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active');
+        currentTab = e.target.dataset.status;
+        renderRequests();
+      });
+    });
+
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderRequests();
+    });
+
+    sortSelect.addEventListener('change', (e) => {
+      currentSort = e.target.value;
+      renderRequests();
+    });
+
+    btnClearFilters.addEventListener('click', () => {
+      searchInput.value = '';
+      searchQuery = '';
+      currentTab = 'all';
+      tabs.forEach(t => t.classList.remove('active'));
+      document.querySelector('[data-status="all"]').classList.add('active');
+      sortSelect.value = 'newest';
+      currentSort = 'newest';
+      renderRequests();
+    });
+
+    // Init
+    renderSummary();
+    renderRequests();
+
+  </script>
+</body>
+</html>

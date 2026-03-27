@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nearby Donations | Food Donation</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    /* Minor inline adjustments for the layout */
+    .page-header {
+      margin-bottom: 2rem;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body class="dashboard-body">
+
+  <div class="dashboard-wrapper">
+    
+    <a href="dashboard.html" class="back-link">
+      <i class="ph ph-arrow-left"></i> Back to Dashboard
+    </a>
+
+    <!-- Top Header Section -->
+    <header class="page-header flex-header">
+      <div class="header-left">
+        <h1 style="color: var(--text-main); font-size: 1.75rem; margin-bottom: 0.5rem;">Nearby Donations</h1>
+        <p style="color: var(--text-muted); font-size: 1rem;">
+          Showing <span id="resultCount" style="font-weight: 600; color: var(--text-main);">0</span> available food donations near your selected location.
+        </p>
+        <div style="margin-top: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span class="badge-tag" style="background: var(--bg-color); color: var(--primary-color); font-size: 0.85rem;">
+            <i class="ph ph-map-pin"></i> Downtown Area, New York
+          </span>
+          <span class="badge-tag" style="background: #e2e8f0; font-size: 0.85rem;">Within 5 km</span>
+        </div>
+      </div>
+      <div class="header-right" style="margin-top: 1rem;">
+        <button class="btn-outline">
+          <i class="ph ph-navigation-arrow"></i> Update Location
+        </button>
+      </div>
+    </header>
+
+    <!-- Search & Filter Bar -->
+    <div class="filter-bar">
+      <div class="search-row">
+        <div class="search-input-wrapper">
+          <i class="ph ph-magnifying-glass"></i>
+          <input type="text" id="searchInput" class="search-input" placeholder="Search by food name, type, donor, or notes...">
+        </div>
+      </div>
+      
+      <div class="filter-actions">
+        <div class="filter-chips">
+          <button class="filter-chip active" data-filter="all">All</button>
+          <button class="filter-chip" data-filter="veg"><i class="ph ph-leaf"></i> Veg Only</button>
+          <button class="filter-chip" data-filter="urgent"><i class="ph ph-clock-countdown"></i> Expiring Soon</button>
+          <button class="filter-chip" data-filter="large"><i class="ph ph-users"></i> Large Quantity (20+)</button>
+        </div>
+
+        <div class="controls-row">
+          <select class="sort-select" id="sortSelect">
+            <option value="nearest">Nearest First</option>
+            <option value="expiry">Expiry Soonest</option>
+            <option value="servings">Most Servings</option>
+            <option value="newest">Newest Prepared</option>
+          </select>
+          
+          <div class="view-toggles">
+            <button class="view-btn active" id="btnGrid" title="Grid View"><i class="ph ph-squares-four"></i></button>
+            <button class="view-btn" id="btnList" title="List View"><i class="ph ph-list"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Donations Container -->
+    <div id="donationsContainer" class="donations-grid">
+      <!-- Cards will be rendered here by JS -->
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState" style="display: none;">
+      <i class="ph ph-magnifying-glass empty-icon"></i>
+      <h3>No donations match your search</h3>
+      <p>We couldn't find any donations matching the current filters or search query.</p>
+      <button class="btn-outline" id="btnClearFilters" style="margin-top: 1rem;">Clear All Filters</button>
+    </div>
+
+  </div>
+
+  <script>
+    // Mock Data Structure
+    const mockDonations = [
+      {
+        id: 1,
+        image: "https://images.unsplash.com/photo-1599839619722-39751411ea63?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60",
+        foodName: "Fresh Baked Bread & Pastries",
+        foodType: "Bakery",
+        category: "Prepared Food",
+        vegType: "veg",
+        quantity: "15 lbs",
+        servings: 20,
+        donorLocation: "Sunrise Bakery",
+        distance: 1.2,
+        preparedTime: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
+        expiryTime: new Date(Date.now() + 7200000).toISOString(), // 2 hours from now
+        notes: "Assorted leftover breads and muffins from morning batch.",
+        status: "Available",
+        isUrgent: true
+      },
+      {
+        id: 2,
+        image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60",
+        foodName: "Mixed Veg & Rice Trays",
+        foodType: "Hot Meals",
+        category: "Cooked Meals",
+        vegType: "veg",
+        quantity: "3 Trays",
+        servings: 30,
+        donorLocation: "TechCorp Cafeteria",
+        distance: 3.5,
+        preparedTime: new Date(Date.now() - 7200000).toISOString(),
+        expiryTime: new Date(Date.now() + 21600000).toISOString(),
+        notes: "Containers are sealed. Mildly spiced.",
+        status: "Available",
+        isUrgent: false
+      },
+      {
+        id: 3,
+        image: "https://images.unsplash.com/photo-1544025162-8315ea07f4a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60",
+        foodName: "Grilled Chicken Salads",
+        foodType: "Cold Meals",
+        category: "Salads",
+        vegType: "non-veg",
+        quantity: "10 Boxes",
+        servings: 10,
+        donorLocation: "Fresh Bites Cafe",
+        distance: 2.1,
+        preparedTime: new Date(Date.now() - 14400000).toISOString(),
+        expiryTime: new Date(Date.now() + 10800000).toISOString(),
+        notes: "Dressing is provided in separate packets.",
+        status: "Available",
+        isUrgent: false
+      },
+      {
+        id: 4,
+        image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60",
+        foodName: "Event Leftovers (Buffet)",
+        foodType: "Mixed",
+        category: "Catering",
+        vegType: "non-veg",
+        quantity: "Large Assortment",
+        servings: 50,
+        donorLocation: "Grand Hotel Plaza",
+        distance: 4.1,
+        preparedTime: new Date(Date.now() - 5400000).toISOString(),
+        expiryTime: new Date(Date.now() + 3600000).toISOString(), // 1 hr left
+        notes: "Mostly pasta, roasted veggies, and carved meats. Need large vehicle.",
+        status: "Available",
+        isUrgent: true
+      },
+      {
+        id: 5,
+        image: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60",
+        foodName: "Apples & Oranges Box",
+        foodType: "Produce",
+        category: "Raw Ingredients",
+        vegType: "veg",
+        quantity: "20 lbs",
+        servings: 40,
+        donorLocation: "Downtown Market",
+        distance: 0.8,
+        preparedTime: new Date(Date.now() - 86400000).toISOString(),
+        expiryTime: new Date(Date.now() + 259200000).toISOString(), // 3 days
+        notes: "Slight blemishes but perfectly good to eat.",
+        status: "Reserved",
+        isUrgent: false
+      }
+    ];
+
+    // State
+    let currentFilter = 'all';
+    let searchQuery = '';
+    let currentSort = 'nearest';
+    let isGridView = true;
+
+    // Elements
+    const container = document.getElementById('donationsContainer');
+    const emptyState = document.getElementById('emptyState');
+    const resultCount = document.getElementById('resultCount');
+    const searchInput = document.getElementById('searchInput');
+    const filterChips = document.querySelectorAll('.filter-chip');
+    const sortSelect = document.getElementById('sortSelect');
+    const btnGrid = document.getElementById('btnGrid');
+    const btnList = document.getElementById('btnList');
+    const btnClearFilters = document.getElementById('btnClearFilters');
+
+    // Helper: format time relative
+    function getRelativeTime(dateString) {
+      const diffStr = (new Date(dateString) - new Date()) / 3600000;
+      if (diffStr < 0) return "Expired";
+      if (diffStr < 1) return "< 1 hour";
+      return `~${Math.round(diffStr)} hours`;
+    }
+
+    // Render Function
+    function renderDonations() {
+      // Show skeletons first for smooth UX
+      container.innerHTML = Array(4).fill().map(() => `
+        <div class="donation-card skeleton">
+          <div class="skeleton-img"></div>
+          <div class="card-body">
+            <div class="skeleton-title"></div>
+            <div class="skeleton-text"></div>
+            <div class="skeleton-text"></div>
+          </div>
+        </div>
+      `).join('');
+
+      setTimeout(() => {
+        let filtered = mockDonations.filter(item => {
+          // Status filter (mostly focus available)
+          if (item.status === 'Unavailable') return false;
+          
+          // Chip filter
+          if (currentFilter === 'veg' && item.vegType !== 'veg') return false;
+          if (currentFilter === 'urgent' && !item.isUrgent) return false;
+          if (currentFilter === 'large' && item.servings < 20) return false;
+          
+          // Search filter
+          if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            return item.foodName.toLowerCase().includes(q) || 
+                   item.foodType.toLowerCase().includes(q) || 
+                   item.donorLocation.toLowerCase().includes(q) || 
+                   item.notes.toLowerCase().includes(q);
+          }
+          return true;
+        });
+
+        // Sorting
+        filtered.sort((a, b) => {
+          if (currentSort === 'nearest') return a.distance - b.distance;
+          if (currentSort === 'expiry') return new Date(a.expiryTime) - new Date(b.expiryTime);
+          if (currentSort === 'servings') return b.servings - a.servings;
+          if (currentSort === 'newest') return new Date(b.preparedTime) - new Date(a.preparedTime);
+          return 0;
+        });
+
+        // Update UI Count
+        resultCount.textContent = filtered.length;
+
+        if (filtered.length === 0) {
+          container.innerHTML = '';
+          emptyState.style.display = 'block';
+        } else {
+          emptyState.style.display = 'none';
+          let requestedIds = JSON.parse(localStorage.getItem('requestedDonations')) || [];
+          
+          container.innerHTML = filtered.map(item => `
+            <div class="donation-card">
+              <div class="card-img" style="background-image: url('${item.image}');">
+                ${item.isUrgent ? '<span class="card-badge badge-urgent">Expiring Soon</span>' : ''}
+              </div>
+              <div class="card-body">
+                <div>
+                  <span class="badge-tag ${item.vegType === 'veg' ? 'veg' : 'non-veg'}">
+                    ${item.vegType === 'veg' ? 'Vegetarian' : 'Non-Veg'}
+                  </span>
+                  <span class="badge-tag">${item.category}</span>
+                </div>
+                <h3 class="card-title">${item.foodName}</h3>
+                
+                <div class="card-meta">
+                  <span><i class="ph ph-scales"></i> ${item.quantity} (~${item.servings} servings)</span>
+                  <span><i class="ph ph-storefront"></i> ${item.donorLocation}</span>
+                  <span><i class="ph ph-clock"></i> Expires in ${getRelativeTime(item.expiryTime)}</span>
+                </div>
+
+                <div class="card-notes">
+                   <strong>Notes:</strong> ${item.notes}
+                </div>
+
+                <div class="card-actions">
+                  <a href="donation-details.html?id=${item.id}" class="btn-outline" style="flex:1; text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center;">View Details</a>
+                  ${(item.status === 'Available' && !requestedIds.includes(item.id))
+                    ? `<a href="request.html?id=${item.id}" class="btn-primary" style="flex:1; text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:0.5rem;"><i class="ph ph-hand-heart"></i> Request</a>` 
+                    : `<span class="status-badge status-reserved" style="display:flex;align-items:center;justify-content:center;flex:1;"><i class="ph ph-check" style="margin-right:0.3rem;"></i> ${requestedIds.includes(item.id) ? 'Requested' : item.status}</span>`
+                  }
+                </div>
+              </div>
+              <div class="card-footer">
+                <span class="distance"><i class="ph ph-person-simple-walk"></i> ${item.distance} km away</span>
+                <span class="status-badge status-${requestedIds.includes(item.id) ? 'reserved' : item.status.toLowerCase()}">${requestedIds.includes(item.id) ? 'Requested' : item.status}</span>
+              </div>
+            </div>
+          `).join('');
+        }
+      }, 300); // 300ms skeleton flash
+    }
+
+    // Event Listeners
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderDonations();
+    });
+
+    filterChips.forEach(chip => {
+      chip.addEventListener('click', (e) => {
+        filterChips.forEach(c => c.classList.remove('active'));
+        e.target.classList.add('active');
+        currentFilter = e.target.dataset.filter;
+        renderDonations();
+      });
+    });
+
+    sortSelect.addEventListener('change', (e) => {
+      currentSort = e.target.value;
+      renderDonations();
+    });
+
+    // View Toggles
+    btnGrid.addEventListener('click', () => {
+      isGridView = true;
+      btnGrid.classList.add('active');
+      btnList.classList.remove('active');
+      container.className = 'donations-grid';
+    });
+
+    btnList.addEventListener('click', () => {
+      isGridView = false;
+      btnList.classList.add('active');
+      btnGrid.classList.remove('active');
+      container.className = 'donations-list';
+    });
+
+    btnClearFilters.addEventListener('click', () => {
+      searchInput.value = '';
+      searchQuery = '';
+      currentFilter = 'all';
+      filterChips.forEach(c => c.classList.remove('active'));
+      document.querySelector('[data-filter="all"]').classList.add('active');
+      renderDonations();
+    });
+
+    // Initial render
+    renderDonations();
+
+  </script>
+</body>
+</html>

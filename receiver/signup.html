@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Receiver Signup | Food Donation</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+
+  <div class="auth-container signup-container">
+    <div class="auth-card">
+      <div class="brand">
+        <div class="brand-icon">
+          <i class="ph ph-buildings"></i>
+        </div>
+        <h1>Organization Registration</h1>
+        <p>Join our platform to receive food donations for your shelter, orphanage, or NGO.</p>
+      </div>
+
+      <form id="signupForm" novalidate>
+        
+        <div class="form-row">
+          <div class="form-group" id="orgNameGroup">
+            <label for="orgName">Organization Name *</label>
+            <input type="text" id="orgName" placeholder="e.g. Hope Foundation">
+            <span class="error-message">Organization name is required.</span>
+          </div>
+
+          <div class="form-group" id="contactPersonGroup">
+            <label for="contactPerson">Contact Person *</label>
+            <input type="text" id="contactPerson" placeholder="Full Name">
+            <span class="error-message">Contact person is required.</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" id="emailGroup">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" placeholder="organization@example.com" autocomplete="email">
+            <span class="error-message">Valid email is required.</span>
+          </div>
+
+          <div class="form-group" id="phoneGroup">
+            <label for="phone">Phone Number *</label>
+            <input type="tel" id="phone" placeholder="+1234567890">
+            <span class="error-message">Enter a valid 10-15 digit phone number.</span>
+          </div>
+        </div>
+
+        <div class="form-group" id="orgTypeGroup">
+          <label for="orgType">Organization Type *</label>
+          <select id="orgType">
+            <option value="" disabled selected>Select from list...</option>
+            <option value="Orphanage">Orphanage</option>
+            <option value="Old Age Home">Old Age Home</option>
+            <option value="NGO">NGO</option>
+            <option value="Shelter">Shelter</option>
+            <option value="Community Kitchen">Community Kitchen</option>
+            <option value="Other">Other</option>
+          </select>
+          <span class="error-message">Please select an organization type.</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" id="addressGroup">
+            <label for="address">Full Address *</label>
+            <input type="text" id="address" placeholder="Street layout and area">
+            <span class="error-message">Address is required.</span>
+          </div>
+
+          <div class="form-group" id="cityGroup">
+            <label for="city">City / Area *</label>
+            <input type="text" id="city" placeholder="e.g. New York">
+            <span class="error-message">City is required.</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" id="passwordGroup">
+            <label for="password">Password *</label>
+            <div class="password-wrapper">
+              <input type="password" id="password" placeholder="Min 6 characters">
+              <button type="button" class="password-toggle" onclick="toggleVisibility('password', 'toggleIcon1')">
+                <i class="ph ph-eye-slash" id="toggleIcon1"></i>
+              </button>
+            </div>
+            <span class="error-message">Password must be at least 6 characters.</span>
+          </div>
+
+          <div class="form-group" id="confirmPasswordGroup">
+            <label for="confirmPassword">Confirm Password *</label>
+            <div class="password-wrapper">
+              <input type="password" id="confirmPassword" placeholder="Re-enter password">
+              <button type="button" class="password-toggle" onclick="toggleVisibility('confirmPassword', 'toggleIcon2')">
+                <i class="ph ph-eye-slash" id="toggleIcon2"></i>
+              </button>
+            </div>
+            <span class="error-message">Passwords do not match.</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="signupBtn" style="margin-top: 1rem;">
+          Register Organization
+        </button>
+
+        <div class="auth-links">
+          <span>Already registered?</span>
+          <a href="login.html">Login to Account</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">
+    <i class="ph ph-check-circle"></i>
+    <span id="toastMsg">Registration successful! Redirecting to login...</span>
+  </div>
+
+  <script>
+    // Password toggle reusable function
+    function toggleVisibility(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      
+      const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+      input.setAttribute('type', type);
+      
+      if (type === 'password') {
+        icon.classList.replace('ph-eye', 'ph-eye-slash');
+      } else {
+        icon.classList.replace('ph-eye-slash', 'ph-eye');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const signupForm = document.getElementById('signupForm');
+      const toast = document.getElementById('toast');
+      const signupBtn = document.getElementById('signupBtn');
+      
+      const validateInput = (id, condition) => {
+        const group = document.getElementById(id + 'Group');
+        const input = document.getElementById(id);
+        
+        if (condition(input.value.trim())) {
+          return true;
+        } else {
+          group.classList.add('error');
+          return false;
+        }
+      };
+
+      const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).toLowerCase());
+      const isValidPhone = (phone) => /^\+?[\d\s-]{10,15}$/.test(String(phone).replace(/\s+/g, ''));
+
+      // Form Handle
+      signupForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Reset all errors
+        document.querySelectorAll('.form-group').forEach(group => group.classList.remove('error'));
+        
+        let isValid = true;
+        
+        isValid = validateInput('orgName', v => v.length > 0) && isValid;
+        isValid = validateInput('contactPerson', v => v.length > 0) && isValid;
+        isValid = validateInput('email', v => isValidEmail(v)) && isValid;
+        isValid = validateInput('phone', v => isValidPhone(v)) && isValid;
+        isValid = validateInput('orgType', v => v !== '') && isValid;
+        isValid = validateInput('address', v => v.length > 0) && isValid;
+        isValid = validateInput('city', v => v.length > 0) && isValid;
+        
+        // Password validation
+        const passwordInput = document.getElementById('password').value;
+        const confirmPasswordInput = document.getElementById('confirmPassword').value;
+        
+        isValid = validateInput('password', v => v.length >= 6) && isValid;
+        
+        if (passwordInput !== confirmPasswordInput || confirmPasswordInput === '') {
+          document.getElementById('confirmPasswordGroup').classList.add('error');
+          isValid = false;
+        }
+
+        if (isValid) {
+          // Success State
+          signupBtn.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Registering...';
+          signupBtn.disabled = true;
+          
+          setTimeout(() => {
+            showToast('Registration successful! Redirecting to dashboard...');
+            
+            setTimeout(() => {
+              window.location.href = 'dashboard.html';
+            }, 1500);
+          }, 800);
+        }
+      });
+
+      function showToast(message) {
+        document.getElementById('toastMsg').textContent = message;
+        toast.classList.add('show', 'success');
+        
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 4000);
+      }
+    });
+  </script>
+</body>
+</html>

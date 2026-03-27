@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Receiver Dashboard | Food Donation</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body class="dashboard-body">
+
+  <div class="dashboard-wrapper">
+    
+    <!-- Top Welcome Section -->
+    <header class="dash-header">
+      <div class="org-profile">
+        <div class="org-avatar">
+          <i class="ph ph-buildings"></i>
+        </div>
+        <div class="welcome-text">
+          <h1>Welcome, Hope Foundation</h1>
+          <p>Here are nearby food donations available for your area.</p>
+        </div>
+      </div>
+      <div class="header-date" id="currentDate">
+        <!-- JS will populate Date -->
+        Friday, March 27, 2026
+      </div>
+    </header>
+
+    <div class="dash-grid">
+      
+      <!-- Main Content Area -->
+      <div class="main-content">
+        
+        <!-- Location Summary Card -->
+        <div class="location-card">
+          <div class="loc-info">
+            <h3><i class="ph ph-map-pin"></i> Downtown Area, New York</h3>
+            <p>Showing donations within 5 km radius</p>
+          </div>
+          <button class="btn-outline">
+            <i class="ph ph-navigation-arrow"></i> Update Location
+          </button>
+        </div>
+
+        <!-- Summary Stat Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon teal"><i class="ph ph-package"></i></div>
+            <div class="stat-info">
+              <h4>Nearby Donations</h4>
+              <span class="stat-num">24</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="ph ph-clock-countdown"></i></div>
+            <div class="stat-info">
+              <h4>Expiring Soon</h4>
+              <span class="stat-num">5</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="ph ph-handshake"></i></div>
+            <div class="stat-info">
+              <h4>Active Requests</h4>
+              <span class="stat-num">2</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="ph ph-check-circle"></i></div>
+            <div class="stat-info">
+              <h4>Completed Pickups</h4>
+              <span class="stat-num">18</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nearby Donations Preview Section -->
+        <div class="section-header">
+          <h2>Available Donations</h2>
+          <a href="donations.html" class="btn-link">View all maps <i class="ph ph-arrow-right"></i></a>
+        </div>
+        
+        <div class="donations-grid">
+          
+          <!-- Urgent Card 1 -->
+          <div class="donation-card">
+            <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1599839619722-39751411ea63?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60');">
+              <span class="card-badge badge-urgent">Expiring Soon</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Fresh Baked Bread & Pastries</h3>
+              <div class="card-meta">
+                <span><i class="ph ph-scales"></i> 15 lbs (~20 servings)</span>
+                <span><i class="ph ph-storefront"></i> Sunrise Bakery</span>
+                <span><i class="ph ph-clock"></i> Expires in 2 hours</span>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="distance"><i class="ph ph-person-simple-walk"></i> 1.2 km away</span>
+              <a href="donation-details.html?id=1" class="btn-view" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">View Details</a>
+            </div>
+          </div>
+
+          <!-- Normal Card 2 -->
+          <div class="donation-card">
+            <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60');">
+              <span class="card-badge badge-new" style="background:var(--success-color);">New</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Mixed Veg & Rice Trays</h3>
+              <div class="card-meta">
+                <span><i class="ph ph-scales"></i> 3 Trays (~30 servings)</span>
+                <span><i class="ph ph-buildings"></i> TechCorp Cafeteria</span>
+                <span><i class="ph ph-clock"></i> Expires in 6 hours</span>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="distance"><i class="ph ph-car"></i> 3.5 km away</span>
+              <a href="donation-details.html?id=2" class="btn-view" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">View Details</a>
+            </div>
+          </div>
+
+          <!-- Urgent Card 3 -->
+          <div class="donation-card">
+            <div class="card-img" style="background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60');">
+              <span class="card-badge badge-urgent">Pickup ASAP</span>
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">Event Leftovers (Buffet)</h3>
+              <div class="card-meta">
+                <span><i class="ph ph-scales"></i> Large (~50 servings)</span>
+                <span><i class="ph ph-confetti"></i> Grand Hotel Plaza</span>
+                <span><i class="ph ph-clock"></i> Expires in 1 hour</span>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="distance"><i class="ph ph-car"></i> 4.1 km away</span>
+              <a href="donation-details.html?id=4" class="btn-view" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">View Details</a>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Sidebar Panel Area -->
+      <div class="sidebar">
+        
+        <!-- Quick Actions -->
+        <div class="sidebar-panel">
+          <h3>Quick Actions</h3>
+          <div class="action-grid">
+            <a href="donations.html" class="action-btn">
+              <i class="ph ph-magnifying-glass"></i>
+              Browse Map
+            </a>
+            <a href="requests.html" class="action-btn">
+              <i class="ph ph-list-checks"></i>
+              My Requests
+            </a>
+            <a href="profile.html" class="action-btn">
+              <i class="ph ph-user"></i>
+              Profile
+            </a>
+            <a href="settings.html" class="action-btn">
+              <i class="ph ph-gear"></i>
+              Settings
+            </a>
+            <a href="login.html" class="action-btn">
+              <i class="ph ph-sign-out"></i>
+              Logout
+            </a>
+          </div>
+        </div>
+
+        <!-- Recent Request Status Section -->
+        <div class="sidebar-panel">
+          <h3>Recent Requests</h3>
+          <div class="request-list">
+            
+            <div class="request-item">
+              <div class="req-icon"><i class="ph ph-pizza"></i></div>
+              <div class="req-info">
+                <h4>Pizza Slices</h4>
+                <p>Luigi's Pizzeria</p>
+              </div>
+              <div class="req-status status-pending">Pending</div>
+            </div>
+
+            <div class="request-item">
+              <div class="req-icon"><i class="ph ph-carrot"></i></div>
+              <div class="req-info">
+                <h4>Fresh Produce</h4>
+                <p>Downtown Market</p>
+              </div>
+              <div class="req-status status-approved">Approved</div>
+            </div>
+
+            <div class="request-item">
+              <div class="req-icon"><i class="ph ph-package"></i></div>
+              <div class="req-info">
+                <h4>Canned Goods</h4>
+                <p>Community Drive</p>
+              </div>
+              <div class="req-status status-approved">Pickup Ready</div>
+            </div>
+
+          </div>
+          <div style="margin-top:1rem; text-align:center;">
+             <a href="requests.html" class="btn-link">View all history</a>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Update dynamically the date header
+    document.addEventListener('DOMContentLoaded', () => {
+      const dateEl = document.getElementById('currentDate');
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      dateEl.textContent = now.toLocaleDateString('en-US', options);
+    });
+  </script>
+</body>
+</html>

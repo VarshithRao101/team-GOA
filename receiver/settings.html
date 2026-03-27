@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Location & Preferences | Food Donation</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    .page-header { margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end; }
+    .back-link { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--primary-color); text-decoration: none; font-weight: 500; margin-bottom: 1rem; }
+    .back-link:hover { text-decoration: underline; }
+    /* Fix for standard appearance */
+    input[type=range], input[type=range]::-webkit-slider-thumb {
+      appearance: none;
+    }
+  </style>
+</head>
+<body class="dashboard-body">
+
+  <div class="dashboard-wrapper settings-wrapper">
+    
+    <!-- Top Header -->
+    <a href="dashboard.html" class="back-link"><i class="ph ph-arrow-left"></i> Back to Dashboard</a>
+    <header class="page-header">
+      <div>
+        <h1 style="font-size: 1.8rem; color: var(--text-main); margin-bottom: 0.5rem;">Location & Preferences</h1>
+        <p style="color: var(--text-muted); font-size: 1rem;">Control which nearby donations appear for your organization.</p>
+      </div>
+      <div style="font-size: 0.85rem; color: var(--text-muted);">
+        <i class="ph ph-clock"></i> Last updated: <span id="lastUpdated">Just now</span>
+      </div>
+    </header>
+
+    <div class="settings-layout">
+      
+      <!-- LEFT COLUMN: Editable Settings -->
+      <main>
+        
+        <!-- Location Preferences -->
+        <div class="settings-card">
+          <div class="settings-header">
+            <i class="ph ph-map-pin"></i> Base Location & Radius
+          </div>
+          
+          <div class="location-summary-block">
+            <i class="ph ph-target loc-sum-bg"></i>
+            <div class="loc-sum-content">
+              <h3 style="color:var(--text-main); font-size:1.1rem; margin-bottom:0.25rem;">Active Service Area</h3>
+              <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">Nearby donations are shown based on this location.</p>
+              <div style="font-weight:600; font-size:1.1rem; color:var(--text-main);"><i class="ph ph-buildings"></i> <span id="sumAddress">452 Hope Street, Suite 4</span></div>
+              <div style="color:var(--text-muted); font-size:0.95rem; margin-top:0.2rem;"><i class="ph ph-globe-hemisphere-west"></i> <span id="sumCity">New York Downtown</span> • Radius: <strong style="color:var(--primary-color);" id="sumRadiusTxt">15 km</strong></div>
+            </div>
+          </div>
+
+          <form id="locationForm" novalidate>
+            <div class="form-row">
+              <div class="form-group" id="grpAddress">
+                <label>Organization Address *</label>
+                <input type="text" id="inpAddress" value="452 Hope Street, Suite 4">
+                <span class="error-message">Address is required.</span>
+              </div>
+              <div class="form-group" id="grpCity">
+                <label>City / Area *</label>
+                <input type="text" id="inpCity" value="New York Downtown">
+                <span class="error-message">City is required.</span>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Landmark (Optional)</label>
+                <input type="text" id="inpLandmark" value="Near Central Park">
+              </div>
+              <div class="form-group">
+                <label>Pincode / Zip (Optional)</label>
+                <input type="text" id="inpPincode" value="10001">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Service Radius: <span id="radiusLabel" style="color:var(--primary-color); font-weight:bold;">15 km</span></label>
+              <input type="range" id="inpRadius" min="1" max="50" value="15" step="1">
+              <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">
+                <span>1 km</span>
+                <span>25 km</span>
+                <span>50 km</span>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Food Preferences -->
+        <div class="settings-card">
+          <div class="settings-header">
+            <i class="ph ph-fork-knife"></i> Food & Dietary Needs
+          </div>
+          
+          <div class="form-group">
+            <label>Accepted Diet Types</label>
+            <div class="chip-grid" id="dietChips">
+              <div class="pref-chip" data-val="Veg Only">Veg Only</div>
+              <div class="pref-chip" data-val="Non-Veg Allowed">Non-Veg Allowed</div>
+              <div class="pref-chip active" data-val="Both">Both</div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top:1.5rem;">
+            <label>Preferred Categories (Select Multiple)</label>
+            <div class="chip-grid" id="catChips">
+              <div class="pref-chip active" data-val="Cooked Meals">Cooked Meals</div>
+              <div class="pref-chip active" data-val="Packaged Food">Packaged Food</div>
+              <div class="pref-chip active" data-val="Bakery Items">Bakery Items</div>
+              <div class="pref-chip" data-val="Raw Ingredients">Raw Ingredients</div>
+              <div class="pref-chip" data-val="Beverages">Beverages</div>
+              <div class="pref-chip" data-val="Snacks">Snacks</div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top:1.5rem;" id="grpServings">
+            <label>Minimum Servings Required</label>
+            <input type="number" id="inpMinServings" value="10" placeholder="e.g. 10">
+            <span class="error-message">Must be a positive number.</span>
+          </div>
+          
+          <div class="form-group" style="margin-top:1.5rem;">
+            <label>Preferred Pickup Window</label>
+            <div class="chip-grid" id="timeChips">
+              <div class="pref-chip" data-val="ASAP">ASAP (Immediate)</div>
+              <div class="pref-chip active" data-val="Flexible">Flexible</div>
+              <div class="pref-chip" data-val="Morning">Morning (8 AM - 12 PM)</div>
+              <div class="pref-chip" data-val="Evening">Evening (5 PM - 8 PM)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification & Priority Rules -->
+        <div class="settings-card">
+          <div class="settings-header">
+            <i class="ph ph-bell-ringing"></i> Priorities & Alerts
+          </div>
+
+          <div style="display:flex; flex-direction:column;">
+            
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-title">Show Expiring Soon First</div>
+                <div class="toggle-desc">Prioritize donations with less than 3 hours remaining automatically.</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="tglExpiring" checked>
+                <span class="slider-ui"></span>
+              </label>
+            </div>
+
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-title">Prioritize Nearest Donations</div>
+                <div class="toggle-desc">Sort your dashboard based on distance rather than post time.</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="tglNearest">
+                <span class="slider-ui"></span>
+              </label>
+            </div>
+
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-title">Notify for Large Quantities</div>
+                <div class="toggle-desc">Send alerts when donations exceeding 50+ servings are listed nearby.</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="tglAlertBulk" checked>
+                <span class="slider-ui"></span>
+              </label>
+            </div>
+
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <div class="toggle-title">Notify for Preference Matches</div>
+                <div class="toggle-desc">Get an alert when a donation exactly matches your exact dietary flags.</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="tglAlertMatch" checked>
+                <span class="slider-ui"></span>
+              </label>
+            </div>
+
+          </div>
+
+          <!-- Actions -->
+          <div class="control-actions">
+            <button class="btn-primary" id="btnSave" style="flex:2;">Save Settings</button>
+            <button class="btn-outline" id="btnReset" style="flex:1;">Reset to Default</button>
+          </div>
+        </div>
+
+      </main>
+
+      <!-- RIGHT COLUMN: Summary Pane -->
+      <aside>
+        <div class="settings-card summary-panel" style="padding: 1.5rem;">
+          <h3 style="font-size:1.1rem; border-bottom:1px solid var(--border-color); padding-bottom:0.75rem; margin-bottom:1rem;">Active Filters</h3>
+          
+          <div class="profile-detail-list">
+            <div class="item">
+              <i class="ph ph-crosshair"></i> 
+              <div>
+                <span style="display:block; font-size:0.8rem; color:var(--text-muted);">Radius Lock</span>
+                <span class="val" id="sumPanelRadius">15 km</span>
+              </div>
+            </div>
+            <div class="item">
+              <i class="ph ph-plant"></i> 
+              <div>
+                <span style="display:block; font-size:0.8rem; color:var(--text-muted);">Diet Rule</span>
+                <span class="val" id="sumPanelDiet">Both</span>
+              </div>
+            </div>
+            <div class="item">
+              <i class="ph ph-users"></i> 
+              <div>
+                <span style="display:block; font-size:0.8rem; color:var(--text-muted);">Min Threshold</span>
+                <span class="val" id="sumPanelMin">10 Servings</span>
+              </div>
+            </div>
+            <div class="item">
+              <i class="ph ph-clock"></i> 
+              <div>
+                <span style="display:block; font-size:0.8rem; color:var(--text-muted);">Operation Shift</span>
+                <span class="val" id="sumPanelTime">Flexible</span>
+              </div>
+            </div>
+            <div class="item">
+              <i class="ph ph-funnel"></i> 
+              <div>
+                <span style="display:block; font-size:0.8rem; color:var(--text-muted);">Priority Route</span>
+                <span class="val" id="sumPanelPriority">Expiring First</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+
+  <div class="toast" id="toast">
+    <i class="ph ph-check-circle"></i>
+    <span id="toastMsg">Settings saved successfully!</span>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      const defaultState = {
+        address: "452 Hope Street, Suite 4",
+        city: "New York Downtown",
+        landmark: "Near Central Park",
+        pincode: "10001",
+        radiusKm: 15,
+        diet: "Both",
+        categories: ["Cooked Meals", "Packaged Food", "Bakery Items"],
+        minServings: 10,
+        pickupTime: "Flexible",
+        tglExpiring: true,
+        tglNearest: false,
+        tglAlertBulk: true,
+        tglAlertMatch: true
+      };
+
+      let currentState = JSON.parse(JSON.stringify(defaultState));
+
+      // Elements
+      const inpAddress = document.getElementById('inpAddress');
+      const inpCity = document.getElementById('inpCity');
+      const inpLandmark = document.getElementById('inpLandmark');
+      const inpPincode = document.getElementById('inpPincode');
+      const inpRadius = document.getElementById('inpRadius');
+      const radiusLabel = document.getElementById('radiusLabel');
+      const inpMinServings = document.getElementById('inpMinServings');
+      
+      const tglExpiring = document.getElementById('tglExpiring');
+      const tglNearest = document.getElementById('tglNearest');
+      const tglAlertBulk = document.getElementById('tglAlertBulk');
+      const tglAlertMatch = document.getElementById('tglAlertMatch');
+
+      const btnSave = document.getElementById('btnSave');
+      const btnReset = document.getElementById('btnReset');
+      const toast = document.getElementById('toast');
+      const lastUpdated = document.getElementById('lastUpdated');
+
+      // Chip Selector Logic
+      function makeChipGroupUnique(containerId, stateKey) {
+        const container = document.getElementById(containerId);
+        container.querySelectorAll('.pref-chip').forEach(chip => {
+          chip.addEventListener('click', (e) => {
+            container.querySelectorAll('.pref-chip').forEach(c => c.classList.remove('active'));
+            e.target.classList.add('active');
+            currentState[stateKey] = e.target.dataset.val;
+          });
+        });
+      }
+
+      function makeChipGroupMultiple(containerId, stateArrayKey) {
+        const container = document.getElementById(containerId);
+        container.querySelectorAll('.pref-chip').forEach(chip => {
+          chip.addEventListener('click', (e) => {
+            e.target.classList.toggle('active');
+            
+            const activeVals = Array.from(container.querySelectorAll('.pref-chip.active'))
+                                   .map(c => c.dataset.val);
+            currentState[stateArrayKey] = activeVals;
+          });
+        });
+      }
+
+      makeChipGroupUnique('dietChips', 'diet');
+      makeChipGroupMultiple('catChips', 'categories');
+      makeChipGroupUnique('timeChips', 'pickupTime');
+
+      function valInput(el, groupName, condition) {
+        const grp = document.getElementById(groupName);
+        if (condition(el.value.trim())) {
+          grp.classList.remove('error'); return true;
+        } else {
+          grp.classList.add('error'); return false;
+        }
+      }
+
+      // Sync DOM to State on Load
+      function syncUI() {
+        inpAddress.value = currentState.address;
+        inpCity.value = currentState.city;
+        inpLandmark.value = currentState.landmark;
+        inpPincode.value = currentState.pincode;
+        
+        inpRadius.value = currentState.radiusKm;
+        radiusLabel.textContent = `${currentState.radiusKm} km`;
+        
+        inpMinServings.value = currentState.minServings;
+        
+        tglExpiring.checked = currentState.tglExpiring;
+        tglNearest.checked = currentState.tglNearest;
+        tglAlertBulk.checked = currentState.tglAlertBulk;
+        tglAlertMatch.checked = currentState.tglAlertMatch;
+
+        // Sync Chips
+        document.querySelectorAll('#dietChips .pref-chip').forEach(c => {
+          c.classList.toggle('active', c.dataset.val === currentState.diet);
+        });
+        document.querySelectorAll('#catChips .pref-chip').forEach(c => {
+          c.classList.toggle('active', currentState.categories.includes(c.dataset.val));
+        });
+        document.querySelectorAll('#timeChips .pref-chip').forEach(c => {
+          c.classList.toggle('active', c.dataset.val === currentState.pickupTime);
+        });
+
+        updateSummaryPanels();
+      }
+
+      function updateSummaryPanels() {
+        // Main Location Card
+        document.getElementById('sumAddress').textContent = currentState.address;
+        document.getElementById('sumCity').textContent = currentState.city;
+        document.getElementById('sumRadiusTxt').textContent = `${currentState.radiusKm} km`;
+        
+        // Sticky Overview Side Panel
+        document.getElementById('sumPanelRadius').textContent = `${currentState.radiusKm} km`;
+        document.getElementById('sumPanelDiet').textContent = currentState.diet;
+        document.getElementById('sumPanelMin').textContent = `${currentState.minServings} Servings`;
+        document.getElementById('sumPanelTime').textContent = currentState.pickupTime;
+        
+        let priority = "Date Based";
+        if (currentState.tglExpiring && currentState.tglNearest) priority = "Expiring & Nearest";
+        else if (currentState.tglExpiring) priority = "Expiring First";
+        else if (currentState.tglNearest) priority = "Nearest First";
+        document.getElementById('sumPanelPriority').textContent = priority;
+      }
+
+      // Event Listeners
+      inpRadius.addEventListener('input', (e) => {
+        radiusLabel.textContent = `${e.target.value} km`;
+      });
+
+      btnReset.addEventListener('click', () => {
+        currentState = JSON.parse(JSON.stringify(defaultState));
+        syncUI();
+      });
+
+      btnSave.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        let isValid = true;
+        isValid = valInput(inpAddress, 'grpAddress', v => v.length > 0) && isValid;
+        isValid = valInput(inpCity, 'grpCity', v => v.length > 0) && isValid;
+        isValid = valInput(inpMinServings, 'grpServings', v => parseInt(v) > 0) && isValid;
+
+        if (isValid) {
+          btnSave.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Saving...`;
+          btnSave.disabled = true;
+
+          setTimeout(() => {
+            // Commit text/number DOM values safely to mock store
+            currentState.address = inpAddress.value.trim();
+            currentState.city = inpCity.value.trim();
+            currentState.landmark = inpLandmark.value.trim();
+            currentState.pincode = inpPincode.value.trim();
+            currentState.radiusKm = inpRadius.value;
+            currentState.minServings = inpMinServings.value;
+            
+            currentState.tglExpiring = tglExpiring.checked;
+            currentState.tglNearest = tglNearest.checked;
+            currentState.tglAlertBulk = tglAlertBulk.checked;
+            currentState.tglAlertMatch = tglAlertMatch.checked;
+
+            syncUI(); // ensures summary cards match perfectly
+            
+            const now = new Date();
+            lastUpdated.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            btnSave.innerHTML = `Save Settings`;
+            btnSave.disabled = false;
+            
+            toast.classList.add('show', 'success');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+          }, 600);
+        }
+      });
+
+      syncUI(); // init run
+    });
+  </script>
+</body>
+</html>

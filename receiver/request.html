@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Request Food | Food Donation</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    .back-nav { margin-bottom: 2rem; }
+    .back-link { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--primary-color); text-decoration: none; font-weight: 500; }
+    .back-link:hover { text-decoration: underline; }
+    .not-found-state { display: none; margin-top: 2rem; }
+  </style>
+</head>
+<body class="dashboard-body">
+
+  <div class="dashboard-wrapper request-wrapper">
+    
+    <!-- Top Navigation Area -->
+    <nav class="back-nav" id="topNav">
+      <a href="#" id="dynamicBack" class="back-link">
+        <i class="ph ph-arrow-left"></i> Back to Detail Page
+      </a>
+      <div style="margin-top: 1rem;">
+        <h1 style="font-size: 1.8rem; color: var(--text-main); margin-bottom: 0.5rem;">Request Food</h1>
+        <p style="color: var(--text-muted); font-size: 1rem;">Review the donation details and submit your pickup request requirements.</p>
+      </div>
+    </nav>
+
+    <!-- Invalid State -->
+    <div class="empty-state not-found-state" id="notFoundState" style="display: none;">
+      <i class="ph ph-warning-circle empty-icon" style="color: #ef4444;"></i>
+      <h3>Donation Error</h3>
+      <p>This donation is not available for requesting or the ID is invalid.</p>
+      <a href="donations.html" class="btn-primary" style="display:inline-block; width:auto; margin-top:1.5rem; text-decoration:none;">
+        Return to Listings
+      </a>
+    </div>
+
+    <!-- Active Request Container -->
+    <div id="requestFlowContainer" style="display: none;">
+      
+      <!-- Selected Donation Summary -->
+      <div class="summary-card">
+        <img src="" id="reqImage" alt="">
+        <div class="summary-info">
+          <h3 id="reqTitle">...</h3>
+          <div class="summary-meta">
+            <span><i class="ph ph-scales" style="color:var(--primary-color);"></i> <span id="reqQty"></span> (~<span id="reqTotalServings"></span> servings available)</span>
+            <span><i class="ph ph-map-pin" style="color:var(--primary-color);"></i> <span id="reqDistance"></span> km away</span>
+            <span class="status-badge status-available" style="padding: 0.1rem 0.4rem;">Available</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="request-grid">
+        
+        <!-- Left Column: Forms -->
+        <div class="col-left">
+          
+          <!-- Receiver Org Mock Details -->
+          <div class="org-preview-card">
+            <div class="org-preview-header">
+              <i class="ph ph-buildings" style="color:var(--primary-color); font-size:1.2rem;"></i> Requesting on behalf of:
+            </div>
+            <div class="org-preview-grid">
+              <div>
+                <span class="label">Organization</span>
+                <span class="value">Hope Foundation Shelters</span>
+              </div>
+              <div>
+                <span class="label">Contact Person</span>
+                <span class="value">Sarah Jenkins</span>
+              </div>
+              <div>
+                <span class="label">Registered Phone</span>
+                <span class="value">+1 555-019-2048</span>
+              </div>
+              <div>
+                <span class="label">Location Base</span>
+                <span class="value">Downtown Area, NY</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Details -->
+          <div class="form-section">
+            <h2>Pickup Requirements</h2>
+            <form id="requestForm" novalidate>
+              
+              <div class="form-row">
+                <div class="form-group" id="servingsGroup">
+                  <label for="servingsInput">Required Servings *</label>
+                  <input type="number" id="servingsInput" min="1" placeholder="How many servings do you need?">
+                  <span class="error-message">Enter a positive number up to available amount.</span>
+                </div>
+                
+                <div class="form-group" id="phoneGroup">
+                  <label for="phoneInput">Pickup Contact Number *</label>
+                  <input type="tel" id="phoneInput" placeholder="Driver's or Contact's Phone" value="+1 555-019-2048">
+                  <span class="error-message">Valid phone number is required.</span>
+                </div>
+              </div>
+
+              <div class="form-group" id="timeGroup">
+                <label>Preferred Pickup Window *</label>
+                <div class="time-grid" id="timeSelection">
+                  <div class="time-btn" data-time="ASAP">ASAP (Within 30m)</div>
+                  <div class="time-btn" data-time="1_hour">Within 1 Hour</div>
+                  <div class="time-btn" data-time="Today">Later Today</div>
+                  <div class="time-btn" data-time="Custom">Custom Prep</div>
+                </div>
+                <input type="hidden" id="selectedTime" value="">
+                <span class="error-message" style="margin-top:0.5rem;">Select a pickup preference.</span>
+              </div>
+
+              <div class="form-group">
+                <label for="notesInput">Additional Notes (Optional)</label>
+                <textarea id="notesInput" rows="3" placeholder="e.g. We will arrive in a white van via the back dock."></textarea>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+        <!-- Right Column: Review & Submission -->
+        <div class="col-right">
+          <div class="review-card">
+            <h3><i class="ph ph-clipboard-text"></i> Live Review</h3>
+            
+            <div class="review-list">
+              <div class="review-item">
+                <span class="review-label">Requesting:</span>
+                <span class="review-val" id="revTitle">...</span>
+              </div>
+              <div class="review-item" style="border-top:1px dashed #bbf7d0; padding-top:0.75rem;">
+                <span class="review-label">Portions:</span>
+                <span class="review-val" id="revServings">0 servings</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">Contact:</span>
+                <span class="review-val" id="revPhone">Not set</span>
+              </div>
+              <div class="review-item">
+                <span class="review-label">Pickup:</span>
+                <span class="review-val" id="revTime">Not selected</span>
+              </div>
+            </div>
+
+            <div class="action-buttons">
+              <button type="submit" id="btnConfirm" class="btn-primary" form="requestForm">
+                Confirm Request
+              </button>
+            </div>
+            <a href="#" id="btnCancel" class="btn-outline" style="width:100%; border:none; margin-top:0.5rem; color: #64748b;">
+              Cancel
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Confirmation UI -->
+    <div class="success-state" id="successState">
+      <div class="success-icon">
+        <i class="ph ph-check"></i>
+      </div>
+      <h2>Request Sent Successfully!</h2>
+      <p>The donor has been notified of your pickup request. You will receive an update once they process it.</p>
+      
+      <div class="success-card">
+        <div style="font-size: 2rem; color: var(--primary-color);">
+          <i class="ph ph-package"></i>
+        </div>
+        <div style="flex:1;">
+          <h4 id="successTitle" style="color:var(--text-main); margin-bottom:0.25rem;">...</h4>
+          <span class="badge">Status: Pending Approval</span>
+        </div>
+      </div>
+
+      <div class="success-actions">
+        <a href="dashboard.html" class="btn-outline"><i class="ph ph-squares-four"></i> Go to Dashboard</a>
+        <a href="donations.html" class="btn-outline"><i class="ph ph-map-pin"></i> Browse Nearby</a>
+        <a href="requests.html" class="btn-primary"><i class="ph ph-list-checks"></i> View My Requests</a>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Mock Data Array
+    const mockDonations = [
+      { id: 1, image: "https://images.unsplash.com/photo-1599839619722-39751411ea63?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", foodName: "Fresh Baked Bread & Pastries", quantity: "15 lbs", servings: 20, distance: 1.2, status: "Available" },
+      { id: 2, image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", foodName: "Mixed Veg & Rice Trays", quantity: "3 Trays", servings: 30, distance: 3.5, status: "Available" },
+      { id: 3, image: "https://images.unsplash.com/photo-1544025162-8315ea07f4a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", foodName: "Grilled Chicken Salads", quantity: "10 Boxes", servings: 10, distance: 2.1, status: "Available" },
+      { id: 4, image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", foodName: "Event Leftovers (Buffet)", quantity: "Large Assortment", servings: 50, distance: 4.1, status: "Available" },
+      { id: 5, image: "https://images.unsplash.com/photo-1610832958506-aa56368176cf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", foodName: "Apples & Oranges Box", quantity: "20 lbs", servings: 40, distance: 0.8, status: "Reserved" }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const reqId = parseInt(urlParams.get('id'));
+      
+      const notFoundState = document.getElementById('notFoundState');
+      const requestFlow = document.getElementById('requestFlowContainer');
+      const donation = mockDonations.find(d => d.id === reqId);
+
+      // Edge State: Unavailable or Missing
+      if (!donation || donation.status !== 'Available') {
+        notFoundState.style.display = 'block';
+        return;
+      }
+
+      // Edge State: Already Requested
+      let requestedIdsCheck = JSON.parse(localStorage.getItem('requestedDonations')) || [];
+      if (requestedIdsCheck.includes(reqId)) {
+        notFoundState.innerHTML = `
+          <i class="ph ph-warning-circle empty-icon" style="color: #ef4444;"></i>
+          <h3>Already Requested</h3>
+          <p>You have already submitted a pickup request for this donation.</p>
+          <a href="requests.html" class="btn-primary" style="display:inline-block; width:auto; margin-top:1.5rem; text-decoration:none;">
+            View My Requests
+          </a>
+        `;
+        notFoundState.style.display = 'block';
+        return;
+      }
+
+      // Valid Context
+      requestFlow.style.display = 'block';
+      let maxServings = donation.servings;
+
+      // Dynamic Back URLs
+      document.getElementById('dynamicBack').href = `donation-details.html?id=${reqId}`;
+      document.getElementById('btnCancel').href = `donation-details.html?id=${reqId}`;
+
+      // Populate Summary
+      document.getElementById('reqImage').src = donation.image;
+      document.getElementById('reqTitle').textContent = donation.foodName;
+      document.getElementById('reqQty').textContent = donation.quantity;
+      document.getElementById('reqTotalServings').textContent = maxServings;
+      document.getElementById('reqDistance').textContent = donation.distance;
+
+      // Initial Live Review
+      document.getElementById('revTitle').textContent = donation.foodName;
+
+      // Live Form Logic
+      const inputSer = document.getElementById('servingsInput');
+      const inputPho = document.getElementById('phoneInput');
+      
+      const revSer = document.getElementById('revServings');
+      const revPho = document.getElementById('revPhone');
+      const revTime = document.getElementById('revTime');
+
+      // Update Review on input
+      inputSer.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value);
+        if (val > 0) revSer.textContent = `${val} servings`;
+        else revSer.textContent = `0 servings`;
+      });
+
+      inputPho.addEventListener('input', (e) => {
+        revPho.textContent = e.target.value || "Not set";
+      });
+      // Initial trigger for phone showing mock placeholder
+      inputPho.dispatchEvent(new Event('input'));
+
+      // Time Chips Logic
+      const timeBtns = document.querySelectorAll('.time-btn');
+      const timeHidden = document.getElementById('selectedTime');
+      const timeGroup = document.getElementById('timeGroup');
+
+      timeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          timeBtns.forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          
+          const val = btn.getAttribute('data-time');
+          timeHidden.value = val;
+          revTime.textContent = btn.textContent;
+          timeGroup.classList.remove('error');
+        });
+      });
+
+      // Submit Form Validation & Success Stage
+      const form = document.getElementById('requestForm');
+      const btnConfirm = document.getElementById('btnConfirm');
+      const serGroup = document.getElementById('servingsGroup');
+      const phoGroup = document.getElementById('phoneGroup');
+
+      const isValidPhone = (str) => str.trim().length >= 8;
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        let isValid = true;
+
+        serGroup.classList.remove('error');
+        phoGroup.classList.remove('error');
+        timeGroup.classList.remove('error');
+
+        // Validation: Servings required, >0, <=max
+        const sVal = parseInt(inputSer.value);
+        if (!sVal || sVal <= 0 || sVal > maxServings) {
+          serGroup.classList.add('error');
+          isValid = false;
+        }
+
+        // Validation: Phone
+        if (!isValidPhone(inputPho.value)) {
+          phoGroup.classList.add('error');
+          isValid = false;
+        }
+
+        // Validation: Time selection
+        if (!timeHidden.value) {
+          timeGroup.classList.add('error');
+          isValid = false;
+        }
+
+        if (isValid) {
+          // Trigger Mock Success Flow
+          btnConfirm.innerHTML = `<i class="ph ph-spinner ph-spin"></i> Processing...`;
+          btnConfirm.disabled = true;
+
+          setTimeout(() => {
+            // Persist the requested state to localStorage
+            let requestedIds = JSON.parse(localStorage.getItem('requestedDonations')) || [];
+            if (!requestedIds.includes(reqId)) {
+              requestedIds.push(reqId);
+              localStorage.setItem('requestedDonations', JSON.stringify(requestedIds));
+            }
+
+            document.getElementById('topNav').style.display = 'none';
+            requestFlow.style.display = 'none';
+            
+            document.getElementById('successTitle').textContent = donation.foodName;
+            document.getElementById('successState').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }, 1200);
+        }
+      });
+
+    });
+  </script>
+</body>
+</html>
